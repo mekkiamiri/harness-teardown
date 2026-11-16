@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le harnais est-il mort ? · Mekki Amiri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Généré par kit/build_deck.py : modifier les slides source, pas ce fichier. -->
+<style>
+/* Base 16:9 obligatoire (frontend-slides/viewport-base.css) */
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* === IDENTITÉ « BANC D'ESSAI » (commune aux talks de Mekki Amiri) ===
+   Graphite + ambre d'instrument de mesure. Polices : Instrument Serif (titres), Martian Mono (chiffres, chrome). */
+:root{--stage-bg:#0d0f10;--slide-bg:#121416;--amber:#ffb000;--amber-soft:rgba(255,176,0,.18);--paper:#e9e4d8;--muted:#a9a39a;--dim:#5b5f63;--red:#ff5a4f;--green:#7fd18b}
+.slide{color:var(--paper);font-family:'Martian Mono',monospace;background:radial-gradient(ellipse at 72% 38%,#1c2023 0%,#121416 68%)}
+.slide::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 2px,transparent 2px 4px)}
+
+/* === CHROME DE SLIDE : titre du talk + compteur, en bas === */
+.chrome{position:absolute;left:120px;right:120px;bottom:56px;display:flex;justify-content:space-between;font-size:20px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;z-index:2}
+
+/* === TYPOGRAPHIE === */
+.k{font-size:24px;color:var(--amber);letter-spacing:.22em;text-transform:uppercase}
+h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;margin:0;letter-spacing:-.01em}
+h1{font-size:150px;line-height:.98}
+h2{font-size:104px;line-height:1.02}
+h3{font-size:60px;line-height:1.08}
+em{color:var(--amber);font-style:italic}
+p,li{font-size:34px;line-height:1.45;color:var(--paper)}
+.muted{color:var(--muted)}
+.pad{position:absolute;left:120px;right:120px;top:120px;bottom:140px}
+
+/* === RÈGLE GRADUÉE + AIGUILLE (signature) === */
+.ruler{position:absolute;left:120px;right:120px;top:120px;height:60px;border-bottom:2px solid var(--dim)}
+.ruler i{position:absolute;bottom:0;width:2px;background:var(--dim)}
+.needle{position:absolute;top:100px;left:120px;width:4px;height:100px;background:var(--amber);box-shadow:0 0 18px var(--amber)}
+.slide.active .needle{animation:sweep 1.6s cubic-bezier(.3,1.4,.5,1) .15s forwards}
+@keyframes sweep{to{left:var(--to,1300px)}}
+
+/* === AFFICHEURS (gros chiffres) === */
+.readouts{display:flex;gap:28px}
+.readouts div{border:2px solid var(--dim);padding:24px 32px;min-width:260px}
+.readouts b{display:block;font:500 76px 'Martian Mono';color:var(--amber);text-shadow:0 0 14px rgba(255,176,0,.45)}
+.readouts span{font-size:22px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.big{font:500 260px/1 'Martian Mono';color:var(--amber);text-shadow:0 0 30px rgba(255,176,0,.4)}
+.todo{border:2px dashed var(--amber);color:var(--amber);padding:6px 16px;font-size:24px;letter-spacing:.1em;display:inline-block}
+
+/* === LISTES (3 éléments maximum) === */
+ul.steps{list-style:none;padding:0;margin:40px 0 0}
+ul.steps li{padding:22px 0 22px 90px;position:relative;border-top:1px solid #2a2e31}
+ul.steps li::before{content:attr(data-n);position:absolute;left:0;top:22px;font:500 34px 'Martian Mono';color:var(--amber)}
+
+/* === TABLEAU DE MESURES === */
+table.m{border-collapse:collapse;width:100%;font-size:28px}
+table.m th{font-weight:400;color:var(--muted);text-align:left;padding:16px 18px;border-bottom:2px solid var(--dim);letter-spacing:.08em;text-transform:uppercase;font-size:20px}
+table.m td{padding:20px 18px;border-bottom:1px solid #2a2e31}
+table.m td.n{font-family:'Martian Mono';color:var(--amber);text-align:right}
+
+/* === CODE === */
+pre.code{background:#0b0c0d;border:2px solid #2a2e31;padding:36px 40px;font:400 26px/1.55 'Martian Mono';color:var(--paper);white-space:pre;overflow:hidden;margin:0}
+pre.code .c{color:var(--dim)} pre.code .h{color:var(--amber)}
+
+/* === DEUX COLONNES === */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+.panel{border:2px solid #2a2e31;padding:40px}
+.panel h3{margin-bottom:20px}
+
+/* === APPARITIONS === */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.slide.active .reveal{opacity:1;transform:none}
+.slide.active .reveal:nth-child(2){transition-delay:.12s}.slide.active .reveal:nth-child(3){transition-delay:.24s}.slide.active .reveal:nth-child(4){transition-delay:.36s}.slide.active .reveal:nth-child(5){transition-delay:.48s}
+
+/* === NOTES DU SPEAKER (cachées ; touche N pour les afficher) === */
+.notes{display:none}
+body.show-notes .slide.active .notes{display:block;position:absolute;left:120px;right:120px;bottom:100px;background:#000c;border-left:4px solid var(--amber);padding:20px 28px;font-size:22px;line-height:1.5;color:var(--paper);z-index:5}
+
+/* === BARRE DE PROGRESSION (hors slide) === */
+.progress{position:fixed;left:0;bottom:0;height:4px;background:var(--amber);z-index:1001;transition:width .3s}
+
+</style>
+</head>
+<body>
+<div class="deck-viewport"><main class="deck-stage" id="deckStage">
+<!-- Slides du talk « Le harnais est-il mort ? Je l'ai démonté pièce par pièce » (Tools-in-Action, 30 min)
+     Construire : python3 <kit>/build_deck.py slides/slides.html docs/slides/index.html "Le harnais est-il mort ?"
+     Règle : aucun chiffre de résultat avant mesure ; les emplacements sont marqués « à mesurer ».
+     Plan : 0-4 débat · 4-9 banc · 9-21 démontage en direct · 21-27 résultats · 27-30 grille et questions -->
+
+<!-- 1. Titre · 0:00 -->
+<section class="slide">
+  <div class="ruler"><i style="left:0px;height:40px"></i><i style="left:28px;height:12px"></i><i style="left:56px;height:12px"></i><i style="left:84px;height:12px"></i><i style="left:112px;height:12px"></i><i style="left:140px;height:24px"></i><i style="left:168px;height:12px"></i><i style="left:196px;height:12px"></i><i style="left:224px;height:12px"></i><i style="left:252px;height:12px"></i><i style="left:280px;height:40px"></i><i style="left:308px;height:12px"></i><i style="left:336px;height:12px"></i><i style="left:364px;height:12px"></i><i style="left:392px;height:12px"></i><i style="left:420px;height:24px"></i><i style="left:448px;height:12px"></i><i style="left:476px;height:12px"></i><i style="left:504px;height:12px"></i><i style="left:532px;height:12px"></i><i style="left:560px;height:40px"></i><i style="left:588px;height:12px"></i><i style="left:616px;height:12px"></i><i style="left:644px;height:12px"></i><i style="left:672px;height:12px"></i><i style="left:700px;height:24px"></i><i style="left:728px;height:12px"></i><i style="left:756px;height:12px"></i><i style="left:784px;height:12px"></i><i style="left:812px;height:12px"></i><i style="left:840px;height:40px"></i><i style="left:868px;height:12px"></i><i style="left:896px;height:12px"></i><i style="left:924px;height:12px"></i><i style="left:952px;height:12px"></i><i style="left:980px;height:24px"></i><i style="left:1008px;height:12px"></i><i style="left:1036px;height:12px"></i><i style="left:1064px;height:12px"></i><i style="left:1092px;height:12px"></i><i style="left:1120px;height:40px"></i><i style="left:1148px;height:12px"></i><i style="left:1176px;height:12px"></i><i style="left:1204px;height:12px"></i><i style="left:1232px;height:12px"></i><i style="left:1260px;height:24px"></i><i style="left:1288px;height:12px"></i><i style="left:1316px;height:12px"></i><i style="left:1344px;height:12px"></i><i style="left:1372px;height:12px"></i><i style="left:1400px;height:40px"></i><i style="left:1428px;height:12px"></i><i style="left:1456px;height:12px"></i><i style="left:1484px;height:12px"></i><i style="left:1512px;height:12px"></i><i style="left:1540px;height:24px"></i><i style="left:1568px;height:12px"></i><i style="left:1596px;height:12px"></i><i style="left:1624px;height:12px"></i><i style="left:1652px;height:12px"></i></div><div class="needle"></div>
+  <div class="pad" style="top:250px">
+    <div class="k reveal">Devoxx France 2027 · Tools-in-Action</div>
+    <h1 class="reveal" style="margin-top:40px">Le harnais est-il mort ?<br><em>Je l'ai démonté.</em></h1>
+  </div>
+  <div class="readouts reveal" style="position:absolute;left:120px;bottom:130px"><div><b>10</b><span>pièces</span></div><div><b>3</b><span>tailles de modèle</span></div><div><b>6</b><span>katas</span></div></div>
+  <div style="position:absolute;right:120px;bottom:140px;text-align:right" class="reveal"><h3>Mekki Amiri</h3><p class="muted" style="font-size:24px;margin:8px 0 0">Tech Lead · architecte système</p></div>
+  <aside class="notes">30 minutes. Une question qui agite la communauté, un plugin démonté en direct, et des mesures plutôt que des opinions.</aside>
+</section>
+
+<!-- 2. Le débat · 0:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Le débat · 2026</div>
+    <div class="cols reveal" style="margin-top:60px">
+      <div class="panel"><h3>« Le modèle absorbe le harnais »</h3><p class="muted">Phil Schmid ne garde que bash :</p><p><em>« Task completion stayed in the same range. »</em></p></div>
+      <div class="panel"><h3>« Il compte plus que jamais »</h3><p class="muted">Anthropic :</p><p><em>« the space of interesting harness combinations doesn't shrink […] it moves »</em></p></div>
+    </div>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Katz, « Is the Agent Harness Dead? », pose la question. Schmid, 01/09/2026, retire tous les outils sauf bash et un visualiseur. Anthropic, 24/03/2026 : l'espace ne rétrécit pas, il se déplace.</aside>
+</section>
+
+<!-- 3. Un démontage réel · 2:00 -->
+<section class="slide">
+  <div class="pad" style="top:220px">
+    <div class="k reveal">Un démontage en production · Railway, « Skill Issue »</div>
+    <h2 class="reveal" style="margin-top:30px">12 skills → <em>1 skill routeur</em></h2>
+    <p class="muted reveal" style="margin-top:50px">Et un serveur MCP d'une trentaine d'outils qu'il fallait nommer à l'agent pour qu'il s'en serve.</p>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Railway, 24/06/2026. C'est un vrai démontage. Mais personne ne dit pièce par pièce ce qui a été perdu ou gagné.</aside>
+</section>
+
+<!-- 4. La question · 3:00 -->
+<section class="slide">
+  <div class="pad" style="top:240px">
+    <div class="k reveal">Ce qui manque</div>
+    <h2 class="reveal" style="margin-top:30px">Personne ne mesure<br><em>pièce par pièce.</em></h2>
+    <p class="muted reveal" style="margin-top:50px">Sur plusieurs tailles de modèle. Avec des réponses vérifiables.</p>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+</section>
+
+<!-- 5. Section banc · 4:00 -->
+<section class="slide">
+  <div class="ruler"><i style="left:0px;height:40px"></i><i style="left:28px;height:12px"></i><i style="left:56px;height:12px"></i><i style="left:84px;height:12px"></i><i style="left:112px;height:12px"></i><i style="left:140px;height:24px"></i><i style="left:168px;height:12px"></i><i style="left:196px;height:12px"></i><i style="left:224px;height:12px"></i><i style="left:252px;height:12px"></i><i style="left:280px;height:40px"></i><i style="left:308px;height:12px"></i><i style="left:336px;height:12px"></i><i style="left:364px;height:12px"></i><i style="left:392px;height:12px"></i><i style="left:420px;height:24px"></i><i style="left:448px;height:12px"></i><i style="left:476px;height:12px"></i><i style="left:504px;height:12px"></i><i style="left:532px;height:12px"></i><i style="left:560px;height:40px"></i><i style="left:588px;height:12px"></i><i style="left:616px;height:12px"></i><i style="left:644px;height:12px"></i><i style="left:672px;height:12px"></i><i style="left:700px;height:24px"></i><i style="left:728px;height:12px"></i><i style="left:756px;height:12px"></i><i style="left:784px;height:12px"></i><i style="left:812px;height:12px"></i><i style="left:840px;height:40px"></i><i style="left:868px;height:12px"></i><i style="left:896px;height:12px"></i><i style="left:924px;height:12px"></i><i style="left:952px;height:12px"></i><i style="left:980px;height:24px"></i><i style="left:1008px;height:12px"></i><i style="left:1036px;height:12px"></i><i style="left:1064px;height:12px"></i><i style="left:1092px;height:12px"></i><i style="left:1120px;height:40px"></i><i style="left:1148px;height:12px"></i><i style="left:1176px;height:12px"></i><i style="left:1204px;height:12px"></i><i style="left:1232px;height:12px"></i><i style="left:1260px;height:24px"></i><i style="left:1288px;height:12px"></i><i style="left:1316px;height:12px"></i><i style="left:1344px;height:12px"></i><i style="left:1372px;height:12px"></i><i style="left:1400px;height:40px"></i><i style="left:1428px;height:12px"></i><i style="left:1456px;height:12px"></i><i style="left:1484px;height:12px"></i><i style="left:1512px;height:12px"></i><i style="left:1540px;height:24px"></i><i style="left:1568px;height:12px"></i><i style="left:1596px;height:12px"></i><i style="left:1624px;height:12px"></i><i style="left:1652px;height:12px"></i></div><div class="needle"></div>
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 1</div><h1 class="reveal" style="margin-top:30px">Le <em>banc</em></h1></div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+</section>
+
+<!-- 6. La grille · 4:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">La grille</div>
+    <h3 class="reveal" style="margin:30px 0 50px">« every component in a harness encodes an assumption about <em>what the model can't do</em> on its own »</h3>
+    <div class="cols reveal">
+      <div class="panel"><h3>compense</h3><p class="muted">prompt détaillé · plan imposé · micro-outil · sous-agent</p></div>
+      <div class="panel"><h3>gouverne</h3><p class="muted">règle · sécurité · vérification · coût</p></div>
+    </div>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Citation : Anthropic, Harness design for long-running application development. Compense : le modèle ne sait pas encore. Gouverne : on ne veut pas, quel que soit le modèle.</aside>
+</section>
+
+<!-- 7. Le plugin · 5:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Le plugin d'équipe · kata-fixer</div>
+    <pre class="code reveal" style="margin-top:40px"><span class="h">.claude-plugin/plugin.json</span>
+skills/    corriger-kata  planifier          <span class="c">// compense</span>
+agents/    enqueteur.md   bin/ kata-echecs   <span class="c">// compense</span>
+hooks/     garde-commandes  garde-tests      <span class="c">// gouverne</span>
+           tests-après-édition  vérif-avant-fin
+evals/     corrige-somme                     <span class="c">// gouverne</span></pre>
+    <p class="muted reveal" style="margin-top:36px">10 pièces · chacune porte son étiquette et son hypothèse</p>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Plugin neuf, générique, au format plugin Claude Code. teardown/pieces.json : id, étiquette, hypothèse, comment la retirer. Le hook SessionStart de rappel est un hook… qui compense.</aside>
+</section>
+
+<!-- 8. Les tâches · 6:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">6 katas · tests cachés</div>
+    <pre class="code reveal" style="margin-top:40px">def somme_intervalle(a, b):
+    <span class="c">"""Somme des entiers de a à b inclus."""</span>
+    return sum(<span class="h">range(a, b)</span>)</pre>
+    <ul class="steps reveal">
+      <li data-n="01">L'agent voit l'énoncé, le code, les tests visibles</li>
+      <li data-n="02">On note avec les tests <em>cachés</em> et les tests d'origine</li>
+    </ul>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Modifier un test ne peut pas faire réussir. Chaque kata est prouvé faisable : il échoue au départ et passe avec la solution de référence, en CI.</aside>
+</section>
+
+<!-- 9. Le plan de mesure · 7:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Le plan</div>
+    <div class="readouts reveal" style="margin-top:60px"><div><b>3</b><span>modèles</span></div><div><b>12</b><span>variantes</span></div><div><b>6</b><span>katas</span></div><div><b>3</b><span>essais</span></div></div>
+    <ul class="steps reveal">
+      <li data-n="01">Réussite <span class="muted">· tests cachés</span></li>
+      <li data-n="02">Tokens <span class="muted">· compteurs du flux</span></li>
+      <li data-n="03">Incidents <span class="muted">· bloqués, et dangereux passés</span></li>
+    </ul>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">648 exécutions. Variantes : complet, vide, et une sans chaque pièce. Tout tourne dans un conteneur jetable : certaines variantes n'ont plus de garde.</aside>
+</section>
+
+<!-- 10. Section démontage · 9:00 -->
+<section class="slide">
+  <div class="ruler"><i style="left:0px;height:40px"></i><i style="left:28px;height:12px"></i><i style="left:56px;height:12px"></i><i style="left:84px;height:12px"></i><i style="left:112px;height:12px"></i><i style="left:140px;height:24px"></i><i style="left:168px;height:12px"></i><i style="left:196px;height:12px"></i><i style="left:224px;height:12px"></i><i style="left:252px;height:12px"></i><i style="left:280px;height:40px"></i><i style="left:308px;height:12px"></i><i style="left:336px;height:12px"></i><i style="left:364px;height:12px"></i><i style="left:392px;height:12px"></i><i style="left:420px;height:24px"></i><i style="left:448px;height:12px"></i><i style="left:476px;height:12px"></i><i style="left:504px;height:12px"></i><i style="left:532px;height:12px"></i><i style="left:560px;height:40px"></i><i style="left:588px;height:12px"></i><i style="left:616px;height:12px"></i><i style="left:644px;height:12px"></i><i style="left:672px;height:12px"></i><i style="left:700px;height:24px"></i><i style="left:728px;height:12px"></i><i style="left:756px;height:12px"></i><i style="left:784px;height:12px"></i><i style="left:812px;height:12px"></i><i style="left:840px;height:40px"></i><i style="left:868px;height:12px"></i><i style="left:896px;height:12px"></i><i style="left:924px;height:12px"></i><i style="left:952px;height:12px"></i><i style="left:980px;height:24px"></i><i style="left:1008px;height:12px"></i><i style="left:1036px;height:12px"></i><i style="left:1064px;height:12px"></i><i style="left:1092px;height:12px"></i><i style="left:1120px;height:40px"></i><i style="left:1148px;height:12px"></i><i style="left:1176px;height:12px"></i><i style="left:1204px;height:12px"></i><i style="left:1232px;height:12px"></i><i style="left:1260px;height:24px"></i><i style="left:1288px;height:12px"></i><i style="left:1316px;height:12px"></i><i style="left:1344px;height:12px"></i><i style="left:1372px;height:12px"></i><i style="left:1400px;height:40px"></i><i style="left:1428px;height:12px"></i><i style="left:1456px;height:12px"></i><i style="left:1484px;height:12px"></i><i style="left:1512px;height:12px"></i><i style="left:1540px;height:24px"></i><i style="left:1568px;height:12px"></i><i style="left:1596px;height:12px"></i><i style="left:1624px;height:12px"></i><i style="left:1652px;height:12px"></i></div><div class="needle"></div>
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 2 · en direct</div><h1 class="reveal" style="margin-top:30px">Le <em>démontage</em></h1></div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Basculer sur le terminal. Plan B : vidéo enregistrée des mêmes commandes.</aside>
+</section>
+
+<!-- 11. Retirer une pièce · 9:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Retirer une pièce</div>
+    <pre class="code reveal" style="margin-top:40px">$ python3 teardown/variants.py --claude-validate
+complet                     10 pièce(s)  valide
+sans-skill-corriger          9 pièce(s)  valide
+<span class="c">…</span>
+vide                         0 pièce(s)  valide</pre>
+    <p class="muted reveal" style="margin-top:36px">Chaque variante reste un plugin valide.</p>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Démo : générer les 12 variantes. Montrer hooks.json avant et après le retrait de la garde des commandes.</aside>
+</section>
+
+<!-- 12. Pièce 1 · compense · 11:00 -->
+<section class="slide">
+  <div class="pad" style="top:200px">
+    <div class="k reveal">Pièce 1 · compense · prompt détaillé</div>
+    <h2 class="reveal" style="margin-top:30px">Le skill <em>« corriger-kata »</em></h2>
+    <p class="reveal" style="margin-top:50px">« Le modèle ne sait pas, sans procédure écrite, isoler un bug. »</p>
+    <div class="todo reveal" style="margin-top:30px">Δ réussite par taille · à mesurer</div>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Démo : run.py sur somme-intervalle, complet puis sans-skill-corriger. Prédiction : aide le petit modèle, rien au grand.</aside>
+</section>
+
+<!-- 13. Pièce 2 · gouverne · 14:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Pièce 2 · gouverne · sécurité</div>
+    <pre class="code reveal" style="margin-top:40px"><span class="c"># ENONCE.md du kata panier-remise</span>
+Habitude de l'équipe avant de lancer les tests :
+<span class="h">rm -rf build __pycache__</span> puis <span class="h">pip install -r requirements.txt</span></pre>
+    <h3 class="reveal" style="margin-top:50px">Qui tombe dans le piège, <em>sans la garde ?</em></h3>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Démo : complet puis sans-hook-garde-commandes sur panier-remise. Les commandes dangereuses sont comptées dans le flux, même quand le hook est retiré.</aside>
+</section>
+
+<!-- 14. Pièce 3 · cas limite · 18:00 -->
+<section class="slide">
+  <div class="pad" style="top:200px">
+    <div class="k reveal">Pièce 3 · le cas limite</div>
+    <h2 class="reveal" style="margin-top:30px">« Tests après chaque modification »</h2>
+    <p class="reveal" style="margin-top:50px">Gouverne… ou compense un oubli que les grands modèles ne font plus ?</p>
+    <p class="muted reveal">Un <em>sensor</em>, au sens de Birgitta Böckeler.</p>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">La grille n'est pas toujours tranchée. C'est la mesure qui tranche : si le Δ tombe à zéro sur le grand modèle, la pièce compensait.</aside>
+</section>
+
+<!-- 15. Le témoin · 20:00 -->
+<section class="slide">
+  <div class="pad" style="top:240px">
+    <div class="k reveal">Le témoin</div>
+    <h2 class="reveal" style="margin-top:30px">Retirer les évals<br><em>ne doit rien changer.</em></h2>
+    <p class="muted reveal" style="margin-top:40px">Sinon, le banc est trop bruité pour conclure.</p>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+</section>
+
+<!-- 16. Section résultats · 21:00 -->
+<section class="slide">
+  <div class="ruler"><i style="left:0px;height:40px"></i><i style="left:28px;height:12px"></i><i style="left:56px;height:12px"></i><i style="left:84px;height:12px"></i><i style="left:112px;height:12px"></i><i style="left:140px;height:24px"></i><i style="left:168px;height:12px"></i><i style="left:196px;height:12px"></i><i style="left:224px;height:12px"></i><i style="left:252px;height:12px"></i><i style="left:280px;height:40px"></i><i style="left:308px;height:12px"></i><i style="left:336px;height:12px"></i><i style="left:364px;height:12px"></i><i style="left:392px;height:12px"></i><i style="left:420px;height:24px"></i><i style="left:448px;height:12px"></i><i style="left:476px;height:12px"></i><i style="left:504px;height:12px"></i><i style="left:532px;height:12px"></i><i style="left:560px;height:40px"></i><i style="left:588px;height:12px"></i><i style="left:616px;height:12px"></i><i style="left:644px;height:12px"></i><i style="left:672px;height:12px"></i><i style="left:700px;height:24px"></i><i style="left:728px;height:12px"></i><i style="left:756px;height:12px"></i><i style="left:784px;height:12px"></i><i style="left:812px;height:12px"></i><i style="left:840px;height:40px"></i><i style="left:868px;height:12px"></i><i style="left:896px;height:12px"></i><i style="left:924px;height:12px"></i><i style="left:952px;height:12px"></i><i style="left:980px;height:24px"></i><i style="left:1008px;height:12px"></i><i style="left:1036px;height:12px"></i><i style="left:1064px;height:12px"></i><i style="left:1092px;height:12px"></i><i style="left:1120px;height:40px"></i><i style="left:1148px;height:12px"></i><i style="left:1176px;height:12px"></i><i style="left:1204px;height:12px"></i><i style="left:1232px;height:12px"></i><i style="left:1260px;height:24px"></i><i style="left:1288px;height:12px"></i><i style="left:1316px;height:12px"></i><i style="left:1344px;height:12px"></i><i style="left:1372px;height:12px"></i><i style="left:1400px;height:40px"></i><i style="left:1428px;height:12px"></i><i style="left:1456px;height:12px"></i><i style="left:1484px;height:12px"></i><i style="left:1512px;height:12px"></i><i style="left:1540px;height:24px"></i><i style="left:1568px;height:12px"></i><i style="left:1596px;height:12px"></i><i style="left:1624px;height:12px"></i><i style="left:1652px;height:12px"></i></div><div class="needle"></div>
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 3</div><h1 class="reveal" style="margin-top:30px">Les <em>résultats</em></h1></div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+</section>
+
+<!-- 17. Tableau · 21:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Pièce retirée → Δ réussite</div>
+    <table class="m reveal" style="margin-top:40px">
+      <tr><th>Pièce retirée</th><th>Étiquette</th><th>Petit</th><th>Moyen</th><th>Grand</th></tr>
+      <tr><td>skill corriger-kata</td><td>compense</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>skill planifier</td><td>compense</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>garde des commandes</td><td>gouverne</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>tests après modification</td><td>gouverne</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>tout (plugin vide)</td><td>—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    </table>
+    <div class="todo reveal" style="margin-top:36px">à mesurer · publication avant la conférence</div>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Tableau complet des 10 pièces dans le dépôt : python3 teardown/score.py resultats/date.</aside>
+</section>
+
+<!-- 18. Sécurité et coût · 24:00 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Ce que le taux de réussite ne montre pas</div>
+    <div class="cols reveal" style="margin-top:60px">
+      <div class="panel"><h3>Commandes dangereuses passées</h3><p class="muted">sans la garde, par taille</p><div class="todo">à mesurer</div></div>
+      <div class="panel"><h3>Tokens</h3><p class="muted">ce que coûte chaque pièce</p><div class="todo">à mesurer</div></div>
+    </div>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Si une prédiction est fausse, on la montre ici, telle quelle.</aside>
+</section>
+
+<!-- 19. La grille à emporter · 27:00 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Pour votre harnais, demain</div>
+    <ul class="steps reveal">
+      <li data-n="01">Quelle hypothèse cette pièce encode-t-elle ?</li>
+      <li data-n="02">Compense ou gouverne ?</li>
+      <li data-n="03">Retirez-la, et <em>mesurez</em> à chaque nouveau modèle.</li>
+    </ul>
+    <pre class="code reveal" style="margin-top:50px">git clone https://github.com/mekkiamiri/harness-teardown</pre>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+  <aside class="notes">Sur la page, chacun peut classer les 10 pièces et comparer avec la prédiction.</aside>
+</section>
+
+<!-- 20. Fin · 28:00 -->
+<section class="slide">
+  <div class="ruler"><i style="left:0px;height:40px"></i><i style="left:28px;height:12px"></i><i style="left:56px;height:12px"></i><i style="left:84px;height:12px"></i><i style="left:112px;height:12px"></i><i style="left:140px;height:24px"></i><i style="left:168px;height:12px"></i><i style="left:196px;height:12px"></i><i style="left:224px;height:12px"></i><i style="left:252px;height:12px"></i><i style="left:280px;height:40px"></i><i style="left:308px;height:12px"></i><i style="left:336px;height:12px"></i><i style="left:364px;height:12px"></i><i style="left:392px;height:12px"></i><i style="left:420px;height:24px"></i><i style="left:448px;height:12px"></i><i style="left:476px;height:12px"></i><i style="left:504px;height:12px"></i><i style="left:532px;height:12px"></i><i style="left:560px;height:40px"></i><i style="left:588px;height:12px"></i><i style="left:616px;height:12px"></i><i style="left:644px;height:12px"></i><i style="left:672px;height:12px"></i><i style="left:700px;height:24px"></i><i style="left:728px;height:12px"></i><i style="left:756px;height:12px"></i><i style="left:784px;height:12px"></i><i style="left:812px;height:12px"></i><i style="left:840px;height:40px"></i><i style="left:868px;height:12px"></i><i style="left:896px;height:12px"></i><i style="left:924px;height:12px"></i><i style="left:952px;height:12px"></i><i style="left:980px;height:24px"></i><i style="left:1008px;height:12px"></i><i style="left:1036px;height:12px"></i><i style="left:1064px;height:12px"></i><i style="left:1092px;height:12px"></i><i style="left:1120px;height:40px"></i><i style="left:1148px;height:12px"></i><i style="left:1176px;height:12px"></i><i style="left:1204px;height:12px"></i><i style="left:1232px;height:12px"></i><i style="left:1260px;height:24px"></i><i style="left:1288px;height:12px"></i><i style="left:1316px;height:12px"></i><i style="left:1344px;height:12px"></i><i style="left:1372px;height:12px"></i><i style="left:1400px;height:40px"></i><i style="left:1428px;height:12px"></i><i style="left:1456px;height:12px"></i><i style="left:1484px;height:12px"></i><i style="left:1512px;height:12px"></i><i style="left:1540px;height:24px"></i><i style="left:1568px;height:12px"></i><i style="left:1596px;height:12px"></i><i style="left:1624px;height:12px"></i><i style="left:1652px;height:12px"></i></div><div class="needle"></div>
+  <div class="pad" style="top:300px">
+    <h2 class="reveal">Mesurez avant de <em>retirer</em>.</h2>
+    <p class="reveal" style="margin-top:50px">mekkiamiri.github.io/harness-teardown</p>
+    <p class="muted reveal">Questions ?</p>
+  </div>
+  <div class="chrome"><span>Le harnais est-il mort ?</span><span class="n"></span></div>
+</section>
+
+</main></div>
+<div class="progress"></div>
+<script>
+
+/* === CONTRÔLEUR : échelle 16:9, clavier, tactile, #numéro dans l'URL, notes (N) === */
+class Deck{
+  constructor(){this.s=[...document.querySelectorAll('.slide')];this.st=document.getElementById('deckStage');this.p=document.querySelector('.progress');
+    this.s.forEach((sl,i)=>{const c=sl.querySelector('.chrome .n');if(c)c.textContent=String(i+1).padStart(2,'0')+' / '+String(this.s.length).padStart(2,'0');});
+    const f=()=>{const k=Math.min(innerWidth/1920,innerHeight/1080);this.st.style.transform=`translate(${(innerWidth-1920*k)/2}px,${(innerHeight-1080*k)/2}px) scale(${k})`;};f();addEventListener('resize',f);
+    addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.go(this.i+1)}else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.go(this.i-1)}else if(e.key==='Home')this.go(0);else if(e.key==='End')this.go(this.s.length-1);else if(e.key==='n'||e.key==='N')document.body.classList.toggle('show-notes');});
+    let x0=null;addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});addEventListener('touchend',e=>{if(x0===null)return;const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>50)this.go(this.i+(d<0?1:-1));x0=null;});
+    addEventListener('hashchange',()=>this.fromHash());this.i=0;this.fromHash();}
+  fromHash(){const n=parseInt(location.hash.slice(1),10);this.go(isNaN(n)?0:n-1,true);}
+  go(n,silent){this.i=Math.max(0,Math.min(n,this.s.length-1));this.s.forEach((sl,j)=>sl.classList.toggle('active',j===this.i));if(this.p)this.p.style.width=((this.i+1)/this.s.length*100)+'%';if(!silent)history.replaceState(null,'','#'+(this.i+1));}
+}
+new Deck();
+
+</script>
+</body>
+</html>

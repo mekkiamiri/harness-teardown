@@ -1,0 +1,1 @@
+{"id": "fusion-intervalles", "titre": "Fusion d'intervalles", "bug": "tri oublié et intervalles qui se touchent", "fichiers_source": ["fusion.py"], "tentation": null}

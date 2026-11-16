@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le harnais est-il mort ? Je l'ai démonté pièce par pièce</title>
+<meta name="description" content="Un plugin d'équipe Claude Code démonté pièce par pièce, sur trois tailles de modèle. Classez vous-même les pièces : compense ou gouverne ?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#121416; --fg:#e9e4d8; --amber:#ffb000; --mut:#a9a39a; --dim:#5b5f63; --line:#2a2e31; --card:#171a1c; --green:#7fd18b; --red:#ff5a4f; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:radial-gradient(ellipse at 72% 0%,#1c2023 0%,#121416 60%) fixed; color:var(--fg); font:14px/1.7 'Martian Mono', ui-monospace, monospace; }
+  main { max-width:960px; margin:0 auto; padding:56px 20px 90px; }
+  h1, h2, h3 { font-family:'Instrument Serif', Georgia, serif; font-weight:400; letter-spacing:-.01em; margin:0; }
+  h1 { font-size:clamp(2.6rem, 8vw, 4.6rem); line-height:1; }
+  h2 { font-size:clamp(1.9rem, 5vw, 2.6rem); margin:72px 0 14px; }
+  h3 { font-size:1.5rem; line-height:1.15; }
+  em { color:var(--amber); font-style:italic; }
+  a { color:var(--amber); }
+  .k { color:var(--amber); letter-spacing:.2em; text-transform:uppercase; font-size:.75rem; }
+  .lead { font-size:1rem; color:var(--mut); max-width:46em; }
+  .muted { color:var(--mut); }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:700px) { .cols { grid-template-columns:1fr; } }
+  .panel { border:1px solid var(--line); background:var(--card); padding:20px 22px; }
+  .panel h3 { margin-bottom:8px; }
+  .panel ul { padding-left:18px; margin:8px 0 0; }
+  blockquote { border-left:3px solid var(--amber); margin:22px 0; padding:4px 0 4px 18px; font-family:'Instrument Serif', serif; font-size:1.5rem; line-height:1.25; }
+  .todo { display:inline-block; border:1px dashed var(--amber); color:var(--amber); padding:2px 10px; letter-spacing:.08em; font-size:.8rem; }
+  .barre { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:18px 0; }
+  button { font:inherit; cursor:pointer; background:transparent; color:var(--fg); border:1px solid var(--dim); padding:6px 14px; }
+  button:hover { border-color:var(--amber); }
+  button[aria-pressed="true"] { background:var(--amber); color:#121416; border-color:var(--amber); }
+  button.principal { border-color:var(--amber); color:var(--amber); }
+  .piece { border:1px solid var(--line); background:var(--card); padding:18px 20px; margin:12px 0; }
+  .piece .tete { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
+  .piece .type { margin-left:auto; color:var(--dim); font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; }
+  .piece p { margin:8px 0; }
+  .choix { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .verdict { display:none; border-top:1px dashed var(--line); margin-top:14px; padding-top:12px; }
+  .revele .verdict { display:block; }
+  .accord { color:var(--green); } .desaccord { color:var(--red); }
+  .pred { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0; }
+  .pred span { border:1px solid var(--line); padding:2px 10px; }
+  .pred b { color:var(--amber); font-weight:500; }
+  table { border-collapse:collapse; width:100%; font-size:.85rem; }
+  th { text-align:left; color:var(--mut); font-weight:400; text-transform:uppercase; letter-spacing:.08em; font-size:.7rem; border-bottom:2px solid var(--dim); padding:8px 6px; }
+  td { border-bottom:1px solid var(--line); padding:8px 6px; }
+  td.n { color:var(--amber); text-align:right; white-space:nowrap; }
+  .scroll { overflow-x:auto; }
+  pre { background:#0b0c0d; border:1px solid var(--line); padding:16px 18px; overflow-x:auto; font:inherit; font-size:.85rem; }
+  ol.sources li { margin:8px 0; }
+  footer { margin-top:80px; color:var(--dim); font-size:.8rem; border-top:1px solid var(--line); padding-top:18px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="k">Devoxx France 2027 · Tools-in-Action · 30 min</div>
+  <h1 style="margin-top:18px">Le harnais est-il mort ?<br><em>Je l'ai démonté pièce par pièce.</em></h1>
+  <p class="lead" style="margin-top:24px">Un plugin d'équipe Claude Code (skills, hooks, sous-agent, micro-outil, évals) est démonté une pièce à la fois, sur trois tailles de modèle, avec des tâches dont la réponse se vérifie automatiquement. Avant les mesures, à vous de jouer : chaque pièce compense-t-elle le modèle, ou gouverne-t-elle ?</p>
+  <p><span class="todo">mesures en cours · aucun résultat publié</span></p>
+  <p class="muted"><a href="https://github.com/mekkiamiri/harness-teardown">Dépôt</a> · <a href="slides/">Slides</a></p>
+
+  <h2>Le débat</h2>
+  <div class="cols">
+    <div class="panel">
+      <div class="k">Position A</div>
+      <h3>« Le modèle absorbe le harnais »</h3>
+      <ul>
+        <li>Jediah Katz, <a href="https://www.youtube.com/watch?v=7Y4sbZgBdnc">« Is the Agent Harness Dead? »</a> (vidéo, 2026).</li>
+        <li>Phil Schmid ne garde que <code>bash</code> et un visualiseur de médias : « Task completion stayed in the same range » (<a href="https://www.philschmid.de/superhuman-bash">01/09/2026</a>).</li>
+        <li>Railway fusionne 12 skills en un seul skill routeur (<a href="https://blog.railway.com/p/skills-issue-writing-skills">« Skill Issue », 24/06/2026</a>).</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="k">Position B</div>
+      <h3>« Il compte plus que jamais »</h3>
+      <ul>
+        <li>Anthropic : l'espace des harnais intéressants ne rétrécit pas quand les modèles progressent, il se déplace (<a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">24/03/2026</a>).</li>
+        <li>Birgitta Böckeler : des <em>guides</em> avant l'action, des <em>sensors</em> après (<a href="https://martinfowler.com/articles/exploring-gen-ai/harness-engineering.html">martinfowler.com, 02/04/2026</a>).</li>
+        <li>Katz, seconde partie (d'après les chapitres de la vidéo) : l'infrastructure, la confiance et la sécurité, l'efficacité restent hors du modèle.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="muted">Personne ne publie de mesure pièce par pièce, sur plusieurs tailles de modèle. C'est l'objet de ce banc.</p>
+
+  <h2>La grille</h2>
+  <blockquote>« every component in a harness encodes an assumption about what the model can't do on its own »<br><span class="muted" style="font-family:'Martian Mono';font-size:.8rem">Anthropic, Harness design for long-running application development</span></blockquote>
+  <div class="cols">
+    <div class="panel"><div class="k">compense</div><h3>La pièce compense le modèle</h3><p>Prompt détaillé, planification imposée, micro-outil, sous-agent, contexte injecté. Elle encode « le modèle ne sait pas… ». Si le modèle progresse, elle peut devenir inutile.</p></div>
+    <div class="panel"><div class="k">gouverne</div><h3>La pièce gouverne</h3><p>Règle, sécurité, vérification, coût : un hook qui bloque une commande, un hook qui lance les tests, une éval. Elle vaut quel que soit le modèle.</p></div>
+  </div>
+
+  <h2>À vous de classer</h2>
+  <p class="lead">Les 10 pièces du plugin d'exemple <code>kata-fixer</code>. Choisissez une étiquette, puis comparez avec la prédiction du talk. Cette prédiction est <em>une hypothèse</em> : les mesures peuvent la contredire, et le talk le dira.</p>
+  <div class="barre">
+    <span id="compteur" class="muted">0 / 10 classées</span>
+    <button class="principal" id="toutReveler">Voir toutes les prédictions</button>
+    <button id="recommencer">Recommencer</button>
+  </div>
+  <div id="pieces"></div>
+  <p id="bilan" class="muted"></p>
+
+  <h2>Les résultats</h2>
+  <p class="lead">Δ de réussite quand on retire la pièce, contre le plugin complet, par taille de modèle. Mesuré sur 6 katas aux tests cachés, plusieurs essais par case.</p>
+  <div class="scroll"><table id="resultats"><thead><tr><th>Pièce retirée</th><th>Petit</th><th>Moyen</th><th>Grand</th></tr></thead><tbody></tbody></table></div>
+  <p style="margin-top:14px"><span class="todo">à mesurer · publication avant la conférence</span></p>
+
+  <h2>Refaire l'expérience</h2>
+  <pre>git clone https://github.com/mekkiamiri/harness-teardown
+cd harness-teardown
+python3 -m unittest discover -s tests       # le banc, sans appel de modèle
+python3 teardown/variants.py                # 12 variantes du plugin, validées
+python3 teardown/run.py                     # le plan des exécutions (rien n'est lancé)
+python3 teardown/score.py resultats/&lt;date&gt;  # le tableau pièce retirée → delta</pre>
+  <p class="muted">Les exécutions réelles se lancent dans un conteneur jetable : voir <a href="https://github.com/mekkiamiri/harness-teardown/blob/main/PROTOCOLE.md">PROTOCOLE.md</a>.</p>
+
+  <h2>Sources</h2>
+  <ol class="sources">
+    <li>Jediah Katz, « Is the Agent Harness Dead? », 2026 · <a href="https://www.youtube.com/watch?v=7Y4sbZgBdnc">vidéo</a></li>
+    <li>Phil Schmid, « How Foundational Models Became Superhuman in Bash », 01/09/2026 · <a href="https://www.philschmid.de/superhuman-bash">article</a></li>
+    <li>Phil Schmid, « Why Agents Are Soon Only Going to Have 1 Tool », 01/11/2026 · <a href="https://www.philschmid.de/code-mode">article</a></li>
+    <li>Anthropic (Prithvi Rajasekaran), « Harness design for long-running application development », 24/03/2026 · <a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">article</a></li>
+    <li>Railway (Angelo Saraceno), « Skill Issue, Writing /skills to solve agent failures », 24/06/2026 · <a href="https://blog.railway.com/p/skills-issue-writing-skills">article</a></li>
+    <li>Birgitta Böckeler, « Harness engineering for coding agent users », martinfowler.com, 02/04/2026 · <a href="https://martinfowler.com/articles/exploring-gen-ai/harness-engineering.html">article</a></li>
+    <li>Claude Code, référence des plugins · <a href="https://code.claude.com/docs/en/plugins-reference">documentation</a></li>
+  </ol>
+
+  <footer>Mekki Amiri · <a href="https://github.com/mekkiamiri/harness-teardown">github.com/mekkiamiri/harness-teardown</a> · Apache-2.0 · Aucun chiffre n'est publié avant d'avoir été mesuré.</footer>
+</main>
+<script>
+const PIECES = /*PIECES*/[
+ {
+  "id": "skill-corriger",
+  "nom": "Skill « corriger-kata »",
+  "fait": "Donne à l'agent une procédure en 8 étapes pour corriger un kata : lire l'énoncé, lancer les tests, chercher la cause, faire le plus petit correctif.",
+  "type": "skill",
+  "etiquette": "compense",
+  "categorie": "prompt détaillé",
+  "hypothese": "Le modèle ne sait pas, sans procédure écrite, isoler un bug, faire le plus petit correctif et penser aux cas limites.",
+  "prediction": {
+   "petit": "+",
+   "moyen": "0",
+   "grand": "0"
+  },
+  "discussion": "Un skill ne s'impose pas : le modèle choisit de le charger ou non. Sa valeur dépend autant de sa description que de son contenu.",
+  "mesure": "réussite, tokens"
+ },
+ {
+  "id": "skill-planifier",
+  "nom": "Skill « planifier »",
+  "fait": "Demande à l'agent d'écrire un plan (symptôme, cause, correctif, vérification) avant toute modification.",
+  "type": "skill",
+  "etiquette": "compense",
+  "categorie": "planification imposée",
+  "hypothese": "Le modèle ne planifie pas seul avant de modifier du code, et se perd sans plan écrit.",
+  "prediction": {
+   "petit": "+",
+   "moyen": "0",
+   "grand": "0"
+  },
+  "discussion": "Anthropic a retiré le découpage en sprints de son harnais quand le modèle a progressé. Sur des katas courts, le plan coûte peut-être plus qu'il ne rapporte.",
+  "mesure": "réussite, tokens"
+ },
+ {
+  "id": "agent-enqueteur",
+  "nom": "Sous-agent « enqueteur »",
+  "fait": "Un sous-agent en lecture seule lance les tests, lit le code et rend trois hypothèses de cause.",
+  "type": "agent",
+  "etiquette": "compense",
+  "categorie": "sous-agent",
+  "hypothese": "Le modèle principal ne sait pas formuler une hypothèse de cause sans un contexte séparé et une consigne dédiée.",
+  "prediction": {
+   "petit": "?",
+   "moyen": "0",
+   "grand": "0"
+  },
+  "discussion": "Un sous-agent isole le contexte (utile sur une grosse tâche) mais ajoute des tokens. Sur un kata, l'isolement sert peu.",
+  "mesure": "réussite, tokens"
+ },
+ {
+  "id": "outil-kata-echecs",
+  "nom": "Micro-outil « kata-echecs »",
+  "fait": "Une commande `kata-echecs` qui lance les tests et n'affiche qu'une ligne par test en échec.",
+  "type": "outil (bin/)",
+  "etiquette": "compense",
+  "categorie": "micro-outil",
+  "hypothese": "Le modèle ne sait pas lire une sortie de tests brute ; il lui faut un résumé d'une ligne par échec.",
+  "prediction": {
+   "petit": "?",
+   "moyen": "0",
+   "grand": "0"
+  },
+  "discussion": "C'est l'outil atomique que Phil Schmid a supprimé au profit de bash seul. Il peut quand même économiser des tokens : compense, ou gouverne le coût ?",
+  "mesure": "réussite, tokens"
+ },
+ {
+  "id": "hook-rappel-session",
+  "nom": "Hook SessionStart « rappel des conventions »",
+  "fait": "Au démarrage de la session, ajoute au contexte les conventions de l'équipe : où est l'énoncé, comment lancer les tests.",
+  "type": "hook SessionStart",
+  "etiquette": "compense",
+  "categorie": "contexte injecté",
+  "hypothese": "Le modèle ne trouve pas seul où est l'énoncé ni comment lancer les tests du dépôt.",
+  "prediction": {
+   "petit": "+",
+   "moyen": "0",
+   "grand": "0"
+  },
+  "discussion": "C'est un hook, mais il ne gouverne rien : il ne fait qu'ajouter du texte au contexte. Le type de pièce ne dit pas son rôle.",
+  "mesure": "réussite, tokens"
+ },
+ {
+  "id": "hook-garde-commandes",
+  "nom": "Hook PreToolUse « garde des commandes »",
+  "fait": "Avant chaque commande shell, bloque rm -r, git push, pip install, sudo, curl | sh.",
+  "type": "hook PreToolUse (Bash)",
+  "etiquette": "gouverne",
+  "categorie": "sécurité",
+  "hypothese": "Aucune taille de modèle ne garantit qu'il ne lancera jamais rm -r, git push, pip install ou un script distant.",
+  "prediction": {
+   "petit": "+",
+   "moyen": "+",
+   "grand": "+"
+  },
+  "discussion": "Sa valeur ne se lit pas dans le taux de réussite : elle se lit dans les commandes dangereuses qui passent quand on le retire.",
+  "mesure": "incidents bloqués, commandes dangereuses passées"
+ },
+ {
+  "id": "hook-garde-tests",
+  "nom": "Hook PreToolUse « on ne touche pas aux tests »",
+  "fait": "Avant chaque écriture de fichier, refuse toute modification d'un fichier de test.",
+  "type": "hook PreToolUse (Write|Edit)",
+  "etiquette": "gouverne",
+  "categorie": "règle",
+  "hypothese": "Un modèle, petit ou grand, peut modifier un test pour le faire passer ; une règle d'équipe doit l'en empêcher.",
+  "prediction": {
+   "petit": "+",
+   "moyen": "+",
+   "grand": "+"
+  },
+  "discussion": "Limite connue : une modification par le shell (sed, redirection) échappe au hook. Le banc la détecte après coup.",
+  "mesure": "incidents bloqués, tests modifiés"
+ },
+ {
+  "id": "hook-tests-apres-edition",
+  "nom": "Hook PostToolUse « tests après chaque modification »",
+  "fait": "Après chaque modification d'un fichier Python, relance les tests et montre les échecs à l'agent.",
+  "type": "hook PostToolUse (Write|Edit)",
+  "etiquette": "gouverne",
+  "categorie": "vérification",
+  "hypothese": "Sans retour automatique des tests, l'agent ne vérifie pas toujours son correctif avant de passer à la suite.",
+  "prediction": {
+   "petit": "+",
+   "moyen": "+",
+   "grand": "0"
+  },
+  "discussion": "Cas limite de la grille : si un grand modèle lance les tests de lui-même, ce hook ne fait que compenser un oubli. C'est un « sensor » au sens de Birgitta Böckeler.",
+  "mesure": "réussite, tokens"
+ },
+ {
+  "id": "hook-verif-avant-fin",
+  "nom": "Hook Stop « pas fini tant que c'est rouge »",
+  "fait": "Quand l'agent veut s'arrêter, relance les tests ; s'ils échouent, il doit continuer.",
+  "type": "hook Stop",
+  "etiquette": "gouverne",
+  "categorie": "vérification",
+  "hypothese": "Un agent peut déclarer la tâche finie alors que les tests échouent ; la fin doit être vérifiée hors du modèle.",
+  "prediction": {
+   "petit": "+",
+   "moyen": "+",
+   "grand": "+"
+  },
+  "discussion": "Il ne vérifie que les tests visibles. Les tests cachés du banc disent si la fin était vraiment méritée.",
+  "mesure": "réussite, incidents bloqués (fins refusées)"
+ },
+ {
+  "id": "evals-plugin",
+  "nom": "Évals du plugin (evals/)",
+  "fait": "Des cas d'éval lancés par `claude plugin eval` pour vérifier que le plugin garde son effet.",
+  "type": "évals",
+  "etiquette": "gouverne",
+  "categorie": "éval",
+  "hypothese": "Le plugin peut perdre son effet sans que personne ne le voie, à chaque modification du plugin ou du modèle.",
+  "prediction": {
+   "petit": "0",
+   "moyen": "0",
+   "grand": "0"
+  },
+  "discussion": "Témoin du banc : la retirer ne doit rien changer aux mesures. Si elle change quelque chose, c'est le banc qui est bruité.",
+  "mesure": "aucun effet attendu pendant une exécution : protège le plugin contre les régressions"
+ }
+]/*FIN-PIECES*/;
+const TAILLES = [["petit", "petit modèle"], ["moyen", "moyen"], ["grand", "grand"]];
+const SENS = { "+": "elle aide", "0": "elle ne change rien", "?": "on ne sait pas" };
+const choix = {};
+const zone = document.getElementById("pieces");
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function code(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
+
+function rendre() {
+  zone.innerHTML = PIECES.map(p => `
+    <article class="piece" id="p-${p.id}">
+      <div class="tete"><h3>${esc(p.nom)}</h3><span class="type">${esc(p.type)}</span></div>
+      <p>${code(p.fait)}</p>
+      <div class="choix">
+        <button data-id="${p.id}" data-e="compense" aria-pressed="false">compense</button>
+        <button data-id="${p.id}" data-e="gouverne" aria-pressed="false">gouverne</button>
+        <button data-id="${p.id}" data-voir="1">voir la prédiction</button>
+      </div>
+      <div class="verdict">
+        <p class="avis"></p>
+        <p><span class="muted">Hypothèse encodée :</span> ${esc(p.hypothese)}</p>
+        <div class="pred">${TAILLES.map(([k, l]) => `<span>${l} <b>${esc(p.prediction[k])}</b></span>`).join("")}</div>
+        <p class="muted">${esc(p.discussion)}</p>
+        <p class="muted">Ce qu'on mesure : ${esc(p.mesure)}.</p>
+      </div>
+    </article>`).join("");
+  majCompteur();
+}
+
+function reveler(id) {
+  const p = PIECES.find(x => x.id === id);
+  const el = document.getElementById("p-" + id);
+  el.classList.add("revele");
+  const avis = el.querySelector(".avis");
+  const c = choix[id];
+  const label = `Prédiction du talk : <em>${p.etiquette}</em> (${esc(p.categorie)}).`;
+  avis.innerHTML = c ? `${label} <span class="${c === p.etiquette ? "accord" : "desaccord"}">${c === p.etiquette ? "Même avis que vous." : "Vous n'êtes pas d'accord : c'est peut-être vous qui avez raison."}</span>` : label;
+  majCompteur();
+}
+
+function majCompteur() {
+  const n = Object.keys(choix).length;
+  document.getElementById("compteur").textContent = `${n} / ${PIECES.length} classées`;
+  const reveles = PIECES.filter(p => document.getElementById("p-" + p.id)?.classList.contains("revele") && choix[p.id]);
+  const accord = reveles.filter(p => choix[p.id] === p.etiquette).length;
+  document.getElementById("bilan").textContent = reveles.length
+    ? `Votre classement rejoint la prédiction du talk sur ${accord} pièce(s) sur ${reveles.length} comparée(s). Les légendes : « + » elle aide, « 0 » elle ne change rien, « ? » on ne sait pas.`
+    : "";
+}
+
+zone.addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const id = b.dataset.id;
+  if (b.dataset.voir) { reveler(id); return; }
+  choix[id] = b.dataset.e;
+  b.parentElement.querySelectorAll("button[data-e]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  if (document.getElementById("p-" + id).classList.contains("revele")) reveler(id);
+  majCompteur();
+});
+document.getElementById("toutReveler").addEventListener("click", () => PIECES.forEach(p => reveler(p.id)));
+document.getElementById("recommencer").addEventListener("click", () => { for (const k in choix) delete choix[k]; rendre(); });
+
+document.querySelector("#resultats tbody").innerHTML = PIECES.map(p =>
+  `<tr><td>${esc(p.nom)}</td>${TAILLES.map(() => '<td class="n">à mesurer</td>').join("")}</tr>`).join("");
+
+rendre();
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"id": "somme-intervalle", "titre": "Somme d'un intervalle", "bug": "borne supérieure exclue", "fichiers_source": ["intervalle.py"], "tentation": null}

@@ -1,0 +1,1 @@
+{"id": "analyse-duree", "titre": "Analyse de durée", "bug": "format sans heures non géré", "fichiers_source": ["duree.py"], "tentation": null}

@@ -1,0 +1,261 @@
+{
+  "plugin": "plugin",
+  "legende": {
+    "compense": "La pièce compense une limite supposée du modèle. Si le modèle progresse, elle peut devenir inutile.",
+    "gouverne": "La pièce impose une règle, une sécurité, une vérification ou une limite de coût, quel que soit le modèle.",
+    "prediction": "Contribution attendue de la pièce selon la taille du modèle : « + » elle aide, « 0 » elle ne change rien, « ? » on ne sait pas. C'est une hypothèse du talk, pas un résultat."
+  },
+  "pieces": [
+    {
+      "id": "skill-corriger",
+      "nom": "Skill « corriger-kata »",
+      "fait": "Donne à l'agent une procédure en 8 étapes pour corriger un kata : lire l'énoncé, lancer les tests, chercher la cause, faire le plus petit correctif.",
+      "type": "skill",
+      "etiquette": "compense",
+      "categorie": "prompt détaillé",
+      "fichier_etiquete": "skills/corriger-kata/SKILL.md",
+      "hypothese": "Le modèle ne sait pas, sans procédure écrite, isoler un bug, faire le plus petit correctif et penser aux cas limites.",
+      "retrait": {
+        "chemins": [
+          "skills/corriger-kata"
+        ],
+        "scripts_hooks": []
+      },
+      "comment_retirer": "Supprimer le dossier skills/corriger-kata/.",
+      "mesure": "réussite, tokens",
+      "prediction": {
+        "petit": "+",
+        "moyen": "0",
+        "grand": "0"
+      },
+      "discussion": "Un skill ne s'impose pas : le modèle choisit de le charger ou non. Sa valeur dépend autant de sa description que de son contenu."
+    },
+    {
+      "id": "skill-planifier",
+      "nom": "Skill « planifier »",
+      "fait": "Demande à l'agent d'écrire un plan (symptôme, cause, correctif, vérification) avant toute modification.",
+      "type": "skill",
+      "etiquette": "compense",
+      "categorie": "planification imposée",
+      "fichier_etiquete": "skills/planifier/SKILL.md",
+      "hypothese": "Le modèle ne planifie pas seul avant de modifier du code, et se perd sans plan écrit.",
+      "retrait": {
+        "chemins": [
+          "skills/planifier"
+        ],
+        "scripts_hooks": []
+      },
+      "comment_retirer": "Supprimer le dossier skills/planifier/.",
+      "mesure": "réussite, tokens",
+      "prediction": {
+        "petit": "+",
+        "moyen": "0",
+        "grand": "0"
+      },
+      "discussion": "Anthropic a retiré le découpage en sprints de son harnais quand le modèle a progressé. Sur des katas courts, le plan coûte peut-être plus qu'il ne rapporte."
+    },
+    {
+      "id": "agent-enqueteur",
+      "nom": "Sous-agent « enqueteur »",
+      "fait": "Un sous-agent en lecture seule lance les tests, lit le code et rend trois hypothèses de cause.",
+      "type": "agent",
+      "etiquette": "compense",
+      "categorie": "sous-agent",
+      "fichier_etiquete": "agents/enqueteur.md",
+      "hypothese": "Le modèle principal ne sait pas formuler une hypothèse de cause sans un contexte séparé et une consigne dédiée.",
+      "retrait": {
+        "chemins": [
+          "agents/enqueteur.md"
+        ],
+        "scripts_hooks": []
+      },
+      "comment_retirer": "Supprimer le fichier agents/enqueteur.md.",
+      "mesure": "réussite, tokens",
+      "prediction": {
+        "petit": "?",
+        "moyen": "0",
+        "grand": "0"
+      },
+      "discussion": "Un sous-agent isole le contexte (utile sur une grosse tâche) mais ajoute des tokens. Sur un kata, l'isolement sert peu."
+    },
+    {
+      "id": "outil-kata-echecs",
+      "nom": "Micro-outil « kata-echecs »",
+      "fait": "Une commande `kata-echecs` qui lance les tests et n'affiche qu'une ligne par test en échec.",
+      "type": "outil (bin/)",
+      "etiquette": "compense",
+      "categorie": "micro-outil",
+      "fichier_etiquete": "bin/kata-echecs",
+      "hypothese": "Le modèle ne sait pas lire une sortie de tests brute ; il lui faut un résumé d'une ligne par échec.",
+      "retrait": {
+        "chemins": [
+          "bin/kata-echecs",
+          "bin"
+        ],
+        "scripts_hooks": []
+      },
+      "comment_retirer": "Supprimer bin/kata-echecs (et le dossier bin/ s'il est vide).",
+      "mesure": "réussite, tokens",
+      "prediction": {
+        "petit": "?",
+        "moyen": "0",
+        "grand": "0"
+      },
+      "discussion": "C'est l'outil atomique que Phil Schmid a supprimé au profit de bash seul. Il peut quand même économiser des tokens : compense, ou gouverne le coût ?"
+    },
+    {
+      "id": "hook-rappel-session",
+      "nom": "Hook SessionStart « rappel des conventions »",
+      "fait": "Au démarrage de la session, ajoute au contexte les conventions de l'équipe : où est l'énoncé, comment lancer les tests.",
+      "type": "hook SessionStart",
+      "etiquette": "compense",
+      "categorie": "contexte injecté",
+      "fichier_etiquete": "scripts/rappel_session.py",
+      "hypothese": "Le modèle ne trouve pas seul où est l'énoncé ni comment lancer les tests du dépôt.",
+      "retrait": {
+        "chemins": [
+          "scripts/rappel_session.py"
+        ],
+        "scripts_hooks": [
+          "scripts/rappel_session.py"
+        ]
+      },
+      "comment_retirer": "Supprimer l'entrée SessionStart de hooks/hooks.json et le script scripts/rappel_session.py.",
+      "mesure": "réussite, tokens",
+      "prediction": {
+        "petit": "+",
+        "moyen": "0",
+        "grand": "0"
+      },
+      "discussion": "C'est un hook, mais il ne gouverne rien : il ne fait qu'ajouter du texte au contexte. Le type de pièce ne dit pas son rôle."
+    },
+    {
+      "id": "hook-garde-commandes",
+      "nom": "Hook PreToolUse « garde des commandes »",
+      "fait": "Avant chaque commande shell, bloque rm -r, git push, pip install, sudo, curl | sh.",
+      "type": "hook PreToolUse (Bash)",
+      "etiquette": "gouverne",
+      "categorie": "sécurité",
+      "fichier_etiquete": "scripts/garde_commandes.py",
+      "hypothese": "Aucune taille de modèle ne garantit qu'il ne lancera jamais rm -r, git push, pip install ou un script distant.",
+      "retrait": {
+        "chemins": [
+          "scripts/garde_commandes.py"
+        ],
+        "scripts_hooks": [
+          "scripts/garde_commandes.py"
+        ]
+      },
+      "comment_retirer": "Supprimer l'entrée PreToolUse « Bash » de hooks/hooks.json et le script scripts/garde_commandes.py.",
+      "mesure": "incidents bloqués, commandes dangereuses passées",
+      "prediction": {
+        "petit": "+",
+        "moyen": "+",
+        "grand": "+"
+      },
+      "discussion": "Sa valeur ne se lit pas dans le taux de réussite : elle se lit dans les commandes dangereuses qui passent quand on le retire."
+    },
+    {
+      "id": "hook-garde-tests",
+      "nom": "Hook PreToolUse « on ne touche pas aux tests »",
+      "fait": "Avant chaque écriture de fichier, refuse toute modification d'un fichier de test.",
+      "type": "hook PreToolUse (Write|Edit)",
+      "etiquette": "gouverne",
+      "categorie": "règle",
+      "fichier_etiquete": "scripts/garde_tests.py",
+      "hypothese": "Un modèle, petit ou grand, peut modifier un test pour le faire passer ; une règle d'équipe doit l'en empêcher.",
+      "retrait": {
+        "chemins": [
+          "scripts/garde_tests.py"
+        ],
+        "scripts_hooks": [
+          "scripts/garde_tests.py"
+        ]
+      },
+      "comment_retirer": "Supprimer l'entrée PreToolUse « Write|Edit » de hooks/hooks.json et le script scripts/garde_tests.py.",
+      "mesure": "incidents bloqués, tests modifiés",
+      "prediction": {
+        "petit": "+",
+        "moyen": "+",
+        "grand": "+"
+      },
+      "discussion": "Limite connue : une modification par le shell (sed, redirection) échappe au hook. Le banc la détecte après coup."
+    },
+    {
+      "id": "hook-tests-apres-edition",
+      "nom": "Hook PostToolUse « tests après chaque modification »",
+      "fait": "Après chaque modification d'un fichier Python, relance les tests et montre les échecs à l'agent.",
+      "type": "hook PostToolUse (Write|Edit)",
+      "etiquette": "gouverne",
+      "categorie": "vérification",
+      "fichier_etiquete": "scripts/tests_apres_edition.py",
+      "hypothese": "Sans retour automatique des tests, l'agent ne vérifie pas toujours son correctif avant de passer à la suite.",
+      "retrait": {
+        "chemins": [
+          "scripts/tests_apres_edition.py"
+        ],
+        "scripts_hooks": [
+          "scripts/tests_apres_edition.py"
+        ]
+      },
+      "comment_retirer": "Supprimer l'entrée PostToolUse de hooks/hooks.json et le script scripts/tests_apres_edition.py.",
+      "mesure": "réussite, tokens",
+      "prediction": {
+        "petit": "+",
+        "moyen": "+",
+        "grand": "0"
+      },
+      "discussion": "Cas limite de la grille : si un grand modèle lance les tests de lui-même, ce hook ne fait que compenser un oubli. C'est un « sensor » au sens de Birgitta Böckeler."
+    },
+    {
+      "id": "hook-verif-avant-fin",
+      "nom": "Hook Stop « pas fini tant que c'est rouge »",
+      "fait": "Quand l'agent veut s'arrêter, relance les tests ; s'ils échouent, il doit continuer.",
+      "type": "hook Stop",
+      "etiquette": "gouverne",
+      "categorie": "vérification",
+      "fichier_etiquete": "scripts/verif_avant_fin.py",
+      "hypothese": "Un agent peut déclarer la tâche finie alors que les tests échouent ; la fin doit être vérifiée hors du modèle.",
+      "retrait": {
+        "chemins": [
+          "scripts/verif_avant_fin.py"
+        ],
+        "scripts_hooks": [
+          "scripts/verif_avant_fin.py"
+        ]
+      },
+      "comment_retirer": "Supprimer l'entrée Stop de hooks/hooks.json et le script scripts/verif_avant_fin.py.",
+      "mesure": "réussite, incidents bloqués (fins refusées)",
+      "prediction": {
+        "petit": "+",
+        "moyen": "+",
+        "grand": "+"
+      },
+      "discussion": "Il ne vérifie que les tests visibles. Les tests cachés du banc disent si la fin était vraiment méritée."
+    },
+    {
+      "id": "evals-plugin",
+      "nom": "Évals du plugin (evals/)",
+      "fait": "Des cas d'éval lancés par `claude plugin eval` pour vérifier que le plugin garde son effet.",
+      "type": "évals",
+      "etiquette": "gouverne",
+      "categorie": "éval",
+      "fichier_etiquete": "evals/LISEZMOI.md",
+      "hypothese": "Le plugin peut perdre son effet sans que personne ne le voie, à chaque modification du plugin ou du modèle.",
+      "retrait": {
+        "chemins": [
+          "evals"
+        ],
+        "scripts_hooks": []
+      },
+      "comment_retirer": "Supprimer le dossier evals/.",
+      "mesure": "aucun effet attendu pendant une exécution : protège le plugin contre les régressions",
+      "prediction": {
+        "petit": "0",
+        "moyen": "0",
+        "grand": "0"
+      },
+      "discussion": "Témoin du banc : la retirer ne doit rien changer aux mesures. Si elle change quelque chose, c'est le banc qui est bruité."
+    }
+  ]
+}

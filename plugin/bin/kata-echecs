@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# teardown: id=outil-kata-echecs · étiquette=compense · catégorie=micro-outil
+"""Lance les tests du kata et n'affiche que l'essentiel : un test en échec par ligne.
+
+Usage : kata-echecs [dossier du kata]   (par défaut : le dossier courant)
+"""
+import re
+import subprocess
+import sys
+
+
+def main() -> int:
+    racine = sys.argv[1] if len(sys.argv) > 1 else "."
+    proc = subprocess.run(
+        [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", "."],
+        cwd=racine, capture_output=True, text=True, timeout=120,
+    )
+    sortie = proc.stderr + proc.stdout
+    if proc.returncode == 0:
+        print("OK : tous les tests visibles passent.")
+        return 0
+    blocs = re.split(r"^={50,}$", sortie, flags=re.M)[1:]
+    for bloc in blocs:
+        lignes = [l for l in bloc.strip().splitlines() if l.strip()]
+        if not lignes:
+            continue
+        titre = lignes[0]
+        derniere = next((l for l in reversed(lignes) if not l.startswith(("-", "Ran ", "FAILED"))), "")
+        print(f"{titre} -> {derniere.strip()}")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

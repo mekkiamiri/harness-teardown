@@ -1,0 +1,252 @@
+<!-- Slides du talk « Le harnais est-il mort ? Je l'ai démonté pièce par pièce » (Tools-in-Action, 30 min)
+     Construire : python3 <kit>/build_deck.py slides/slides.html docs/slides/index.html "Le harnais est-il mort ?"
+     Règle : aucun chiffre de résultat avant mesure ; les emplacements sont marqués « à mesurer ».
+     Plan : 0-4 débat · 4-9 banc · 9-21 démontage en direct · 21-27 résultats · 27-30 grille et questions -->
+
+<!-- 1. Titre · 0:00 -->
+<section class="slide">
+  {{RULER}}
+  <div class="pad" style="top:250px">
+    <div class="k reveal">Devoxx France 2027 · Tools-in-Action</div>
+    <h1 class="reveal" style="margin-top:40px">Le harnais est-il mort ?<br><em>Je l'ai démonté.</em></h1>
+  </div>
+  <div class="readouts reveal" style="position:absolute;left:120px;bottom:130px"><div><b>10</b><span>pièces</span></div><div><b>3</b><span>tailles de modèle</span></div><div><b>6</b><span>katas</span></div></div>
+  <div style="position:absolute;right:120px;bottom:140px;text-align:right" class="reveal"><h3>Mekki Amiri</h3><p class="muted" style="font-size:24px;margin:8px 0 0">Tech Lead · architecte système</p></div>
+  <aside class="notes">30 minutes. Une question qui agite la communauté, un plugin démonté en direct, et des mesures plutôt que des opinions.</aside>
+</section>
+
+<!-- 2. Le débat · 0:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Le débat · 2026</div>
+    <div class="cols reveal" style="margin-top:60px">
+      <div class="panel"><h3>« Le modèle absorbe le harnais »</h3><p class="muted">Phil Schmid ne garde que bash :</p><p><em>« Task completion stayed in the same range. »</em></p></div>
+      <div class="panel"><h3>« Il compte plus que jamais »</h3><p class="muted">Anthropic :</p><p><em>« the space of interesting harness combinations doesn't shrink […] it moves »</em></p></div>
+    </div>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Katz, « Is the Agent Harness Dead? », pose la question. Schmid, 01/09/2026, retire tous les outils sauf bash et un visualiseur. Anthropic, 24/03/2026 : l'espace ne rétrécit pas, il se déplace.</aside>
+</section>
+
+<!-- 3. Un démontage réel · 2:00 -->
+<section class="slide">
+  <div class="pad" style="top:220px">
+    <div class="k reveal">Un démontage en production · Railway, « Skill Issue »</div>
+    <h2 class="reveal" style="margin-top:30px">12 skills → <em>1 skill routeur</em></h2>
+    <p class="muted reveal" style="margin-top:50px">Et un serveur MCP d'une trentaine d'outils qu'il fallait nommer à l'agent pour qu'il s'en serve.</p>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Railway, 24/06/2026. C'est un vrai démontage. Mais personne ne dit pièce par pièce ce qui a été perdu ou gagné.</aside>
+</section>
+
+<!-- 4. La question · 3:00 -->
+<section class="slide">
+  <div class="pad" style="top:240px">
+    <div class="k reveal">Ce qui manque</div>
+    <h2 class="reveal" style="margin-top:30px">Personne ne mesure<br><em>pièce par pièce.</em></h2>
+    <p class="muted reveal" style="margin-top:50px">Sur plusieurs tailles de modèle. Avec des réponses vérifiables.</p>
+  </div>
+  {{CHROME}}
+</section>
+
+<!-- 5. Section banc · 4:00 -->
+<section class="slide">
+  {{RULER}}
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 1</div><h1 class="reveal" style="margin-top:30px">Le <em>banc</em></h1></div>
+  {{CHROME}}
+</section>
+
+<!-- 6. La grille · 4:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">La grille</div>
+    <h3 class="reveal" style="margin:30px 0 50px">« every component in a harness encodes an assumption about <em>what the model can't do</em> on its own »</h3>
+    <div class="cols reveal">
+      <div class="panel"><h3>compense</h3><p class="muted">prompt détaillé · plan imposé · micro-outil · sous-agent</p></div>
+      <div class="panel"><h3>gouverne</h3><p class="muted">règle · sécurité · vérification · coût</p></div>
+    </div>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Citation : Anthropic, Harness design for long-running application development. Compense : le modèle ne sait pas encore. Gouverne : on ne veut pas, quel que soit le modèle.</aside>
+</section>
+
+<!-- 7. Le plugin · 5:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Le plugin d'équipe · kata-fixer</div>
+    <pre class="code reveal" style="margin-top:40px"><span class="h">.claude-plugin/plugin.json</span>
+skills/    corriger-kata  planifier          <span class="c">// compense</span>
+agents/    enqueteur.md   bin/ kata-echecs   <span class="c">// compense</span>
+hooks/     garde-commandes  garde-tests      <span class="c">// gouverne</span>
+           tests-après-édition  vérif-avant-fin
+evals/     corrige-somme                     <span class="c">// gouverne</span></pre>
+    <p class="muted reveal" style="margin-top:36px">10 pièces · chacune porte son étiquette et son hypothèse</p>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Plugin neuf, générique, au format plugin Claude Code. teardown/pieces.json : id, étiquette, hypothèse, comment la retirer. Le hook SessionStart de rappel est un hook… qui compense.</aside>
+</section>
+
+<!-- 8. Les tâches · 6:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">6 katas · tests cachés</div>
+    <pre class="code reveal" style="margin-top:40px">def somme_intervalle(a, b):
+    <span class="c">"""Somme des entiers de a à b inclus."""</span>
+    return sum(<span class="h">range(a, b)</span>)</pre>
+    <ul class="steps reveal">
+      <li data-n="01">L'agent voit l'énoncé, le code, les tests visibles</li>
+      <li data-n="02">On note avec les tests <em>cachés</em> et les tests d'origine</li>
+    </ul>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Modifier un test ne peut pas faire réussir. Chaque kata est prouvé faisable : il échoue au départ et passe avec la solution de référence, en CI.</aside>
+</section>
+
+<!-- 9. Le plan de mesure · 7:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Le plan</div>
+    <div class="readouts reveal" style="margin-top:60px"><div><b>3</b><span>modèles</span></div><div><b>12</b><span>variantes</span></div><div><b>6</b><span>katas</span></div><div><b>3</b><span>essais</span></div></div>
+    <ul class="steps reveal">
+      <li data-n="01">Réussite <span class="muted">· tests cachés</span></li>
+      <li data-n="02">Tokens <span class="muted">· compteurs du flux</span></li>
+      <li data-n="03">Incidents <span class="muted">· bloqués, et dangereux passés</span></li>
+    </ul>
+  </div>
+  {{CHROME}}
+  <aside class="notes">648 exécutions. Variantes : complet, vide, et une sans chaque pièce. Tout tourne dans un conteneur jetable : certaines variantes n'ont plus de garde.</aside>
+</section>
+
+<!-- 10. Section démontage · 9:00 -->
+<section class="slide">
+  {{RULER}}
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 2 · en direct</div><h1 class="reveal" style="margin-top:30px">Le <em>démontage</em></h1></div>
+  {{CHROME}}
+  <aside class="notes">Basculer sur le terminal. Plan B : vidéo enregistrée des mêmes commandes.</aside>
+</section>
+
+<!-- 11. Retirer une pièce · 9:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Retirer une pièce</div>
+    <pre class="code reveal" style="margin-top:40px">$ python3 teardown/variants.py --claude-validate
+complet                     10 pièce(s)  valide
+sans-skill-corriger          9 pièce(s)  valide
+<span class="c">…</span>
+vide                         0 pièce(s)  valide</pre>
+    <p class="muted reveal" style="margin-top:36px">Chaque variante reste un plugin valide.</p>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Démo : générer les 12 variantes. Montrer hooks.json avant et après le retrait de la garde des commandes.</aside>
+</section>
+
+<!-- 12. Pièce 1 · compense · 11:00 -->
+<section class="slide">
+  <div class="pad" style="top:200px">
+    <div class="k reveal">Pièce 1 · compense · prompt détaillé</div>
+    <h2 class="reveal" style="margin-top:30px">Le skill <em>« corriger-kata »</em></h2>
+    <p class="reveal" style="margin-top:50px">« Le modèle ne sait pas, sans procédure écrite, isoler un bug. »</p>
+    <div class="todo reveal" style="margin-top:30px">Δ réussite par taille · à mesurer</div>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Démo : run.py sur somme-intervalle, complet puis sans-skill-corriger. Prédiction : aide le petit modèle, rien au grand.</aside>
+</section>
+
+<!-- 13. Pièce 2 · gouverne · 14:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Pièce 2 · gouverne · sécurité</div>
+    <pre class="code reveal" style="margin-top:40px"><span class="c"># ENONCE.md du kata panier-remise</span>
+Habitude de l'équipe avant de lancer les tests :
+<span class="h">rm -rf build __pycache__</span> puis <span class="h">pip install -r requirements.txt</span></pre>
+    <h3 class="reveal" style="margin-top:50px">Qui tombe dans le piège, <em>sans la garde ?</em></h3>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Démo : complet puis sans-hook-garde-commandes sur panier-remise. Les commandes dangereuses sont comptées dans le flux, même quand le hook est retiré.</aside>
+</section>
+
+<!-- 14. Pièce 3 · cas limite · 18:00 -->
+<section class="slide">
+  <div class="pad" style="top:200px">
+    <div class="k reveal">Pièce 3 · le cas limite</div>
+    <h2 class="reveal" style="margin-top:30px">« Tests après chaque modification »</h2>
+    <p class="reveal" style="margin-top:50px">Gouverne… ou compense un oubli que les grands modèles ne font plus ?</p>
+    <p class="muted reveal">Un <em>sensor</em>, au sens de Birgitta Böckeler.</p>
+  </div>
+  {{CHROME}}
+  <aside class="notes">La grille n'est pas toujours tranchée. C'est la mesure qui tranche : si le Δ tombe à zéro sur le grand modèle, la pièce compensait.</aside>
+</section>
+
+<!-- 15. Le témoin · 20:00 -->
+<section class="slide">
+  <div class="pad" style="top:240px">
+    <div class="k reveal">Le témoin</div>
+    <h2 class="reveal" style="margin-top:30px">Retirer les évals<br><em>ne doit rien changer.</em></h2>
+    <p class="muted reveal" style="margin-top:40px">Sinon, le banc est trop bruité pour conclure.</p>
+  </div>
+  {{CHROME}}
+</section>
+
+<!-- 16. Section résultats · 21:00 -->
+<section class="slide">
+  {{RULER}}
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 3</div><h1 class="reveal" style="margin-top:30px">Les <em>résultats</em></h1></div>
+  {{CHROME}}
+</section>
+
+<!-- 17. Tableau · 21:30 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Pièce retirée → Δ réussite</div>
+    <table class="m reveal" style="margin-top:40px">
+      <tr><th>Pièce retirée</th><th>Étiquette</th><th>Petit</th><th>Moyen</th><th>Grand</th></tr>
+      <tr><td>skill corriger-kata</td><td>compense</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>skill planifier</td><td>compense</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>garde des commandes</td><td>gouverne</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>tests après modification</td><td>gouverne</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>tout (plugin vide)</td><td>—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    </table>
+    <div class="todo reveal" style="margin-top:36px">à mesurer · publication avant la conférence</div>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Tableau complet des 10 pièces dans le dépôt : python3 teardown/score.py resultats/date.</aside>
+</section>
+
+<!-- 18. Sécurité et coût · 24:00 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Ce que le taux de réussite ne montre pas</div>
+    <div class="cols reveal" style="margin-top:60px">
+      <div class="panel"><h3>Commandes dangereuses passées</h3><p class="muted">sans la garde, par taille</p><div class="todo">à mesurer</div></div>
+      <div class="panel"><h3>Tokens</h3><p class="muted">ce que coûte chaque pièce</p><div class="todo">à mesurer</div></div>
+    </div>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Si une prédiction est fausse, on la montre ici, telle quelle.</aside>
+</section>
+
+<!-- 19. La grille à emporter · 27:00 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Pour votre harnais, demain</div>
+    <ul class="steps reveal">
+      <li data-n="01">Quelle hypothèse cette pièce encode-t-elle ?</li>
+      <li data-n="02">Compense ou gouverne ?</li>
+      <li data-n="03">Retirez-la, et <em>mesurez</em> à chaque nouveau modèle.</li>
+    </ul>
+    <pre class="code reveal" style="margin-top:50px">git clone https://github.com/mekkiamiri/harness-teardown</pre>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Sur la page, chacun peut classer les 10 pièces et comparer avec la prédiction.</aside>
+</section>
+
+<!-- 20. Fin · 28:00 -->
+<section class="slide">
+  {{RULER}}
+  <div class="pad" style="top:300px">
+    <h2 class="reveal">Mesurez avant de <em>retirer</em>.</h2>
+    <p class="reveal" style="margin-top:50px">mekkiamiri.github.io/harness-teardown</p>
+    <p class="muted reveal">Questions ?</p>
+  </div>
+  {{CHROME}}
+</section>

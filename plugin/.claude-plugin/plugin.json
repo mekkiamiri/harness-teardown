@@ -1,0 +1,11 @@
+{
+  "name": "kata-fixer",
+  "version": "0.1.0",
+  "description": "Plugin d'équipe d'exemple : corriger de petits bugs Python dans des katas avec tests. Sert de banc pour le talk « Le harnais est-il mort ? ».",
+  "author": {
+    "name": "Mekki Amiri"
+  },
+  "repository": "https://github.com/mekkiamiri/harness-teardown",
+  "license": "Apache-2.0",
+  "keywords": ["katas", "python", "tests", "teardown"]
+}
