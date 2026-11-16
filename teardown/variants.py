@@ -193,13 +193,34 @@ def _nettoyer_scripts(plugin: Path) -> None:
         shutil.rmtree(scripts)
 
 
+MARQUEUR = ".teardown-variantes"
+
+
+def verifier_sortie(sortie: Path, source: Path | None = None) -> None:
+    """Refuse un dossier de sortie dangereux à effacer.
+
+    Interdits : le dépôt, un de ses parents, le plugin source ou un de ses dossiers,
+    et tout dossier non vide qui ne porte pas le marqueur laissé par cet outil.
+    """
+    cible = sortie.resolve()
+    if cible == RACINE or RACINE.is_relative_to(cible):
+        raise ValueError(f"sortie refusée : {sortie} est le dépôt ou l'un de ses parents")
+    if source is not None and (cible == source.resolve() or cible.is_relative_to(source.resolve())):
+        raise ValueError(f"sortie refusée : {sortie} est dans le plugin source")
+    if cible.exists() and (not cible.is_dir() or (any(cible.iterdir()) and not (cible / MARQUEUR).exists())):
+        raise ValueError(f"sortie refusée : {sortie} existe, n'est pas vide et n'a pas été créé par cet outil")
+
+
 def generer(sortie: Path, source: Path | None = None, donnees: dict | None = None) -> dict[str, Path]:
     """Génère complet, vide et sans-<id> pour chaque pièce. Renvoie {nom de variante: dossier}."""
     donnees = donnees or charger_pieces()
     source = source or (RACINE / donnees["plugin"])
+    verifier_sortie(sortie, source)
     if sortie.exists():
         shutil.rmtree(sortie)
     sortie.mkdir(parents=True)
+    (sortie / MARQUEUR).write_text("Dossier créé par teardown/variants.py : il est effacé à chaque génération.\n",
+                                   encoding="utf-8")
     ignorer = shutil.ignore_patterns("__pycache__", "*.pyc", "results")
     variantes: dict[str, Path] = {}
 
@@ -234,7 +255,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     donnees = charger_pieces()
-    variantes = generer(args.sortie, donnees=donnees)
+    try:
+        variantes = generer(args.sortie, donnees=donnees)
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 2
     echec = False
     for nom, dossier in variantes.items():
         erreurs = valider(dossier)

@@ -13,8 +13,10 @@ Chaque pièce d'un harnais encode une hypothèse sur ce que le modèle ne sait p
 
 | Étiquette | La pièce… | Exemples dans le plugin |
 |---|---|---|
-| **compense** | compense une limite supposée du modèle | procédure détaillée, planification imposée, micro-outil, sous-agent, contexte injecté |
-| **gouverne** | impose une règle, une sécurité, une vérification | hook qui bloque `rm -r` ou `git push`, hook qui interdit de toucher aux tests, hook qui lance les tests, évals |
+| **compense** | compense une limite supposée du modèle | procédure détaillée, planification imposée, micro-outil, sous-agent, contexte injecté, retour automatique des tests |
+| **gouverne** | impose une règle, une sécurité, une vérification | hook qui bloque `rm -r` ou `git push`, hook qui interdit de toucher aux tests, hook qui refuse la fin tant que les tests échouent, évals |
+
+Une onzième pièce, **témoin**, n'a aucun effet : son Δ mesure le bruit du banc.
 
 **Hypothèse du talk** (pas un résultat) : sur les gros modèles, les pièces qui compensent n'apportent plus rien ; celles qui gouvernent gardent leur valeur. Si la mesure dit le contraire, le talk le dira.
 
@@ -23,11 +25,11 @@ Chaque pièce d'un harnais encode une hypothèse sur ce que le modèle ne sait p
 | Élément | Où | État |
 |---|---|---|
 | Plugin d'équipe d'exemple `kata-fixer` (2 skills, 1 sous-agent, 1 micro-outil, 5 hooks, évals) | [`plugin/`](plugin/) | fait, `claude plugin validate --strict` passe en local |
-| Manifeste des 10 pièces : étiquette, hypothèse encodée, comment la retirer, prédiction | [`teardown/pieces.json`](teardown/pieces.json) | fait |
-| Générateur de variantes (complet, vide, sans chaque pièce) + validation | [`teardown/variants.py`](teardown/variants.py) | fait : 12 variantes, toutes valides |
+| Manifeste des pièces (10 réelles + 1 témoin) : étiquette, hypothèse encodée, comment la retirer, prédiction | [`teardown/pieces.json`](teardown/pieces.json) | fait |
+| Générateur de variantes (complet, vide, sans chaque pièce) + validation | [`teardown/variants.py`](teardown/variants.py) | fait : 13 variantes, toutes valides ; refuse d'écrire dans le dépôt ou un dossier étranger |
 | 6 katas Python avec tests visibles, tests cachés et solution de référence | [`taches/`](taches/), [`teardown/taches.py`](teardown/taches.py) | fait : chaque kata échoue au départ et passe avec la solution |
-| Lanceur des exécutions (plan, garde-fou conteneur, lecture du flux `stream-json`) | [`teardown/run.py`](teardown/run.py) | écrit et testé sans modèle ; **jamais lancé contre un modèle** |
-| Noteur : tableau « pièce retirée → delta » | [`teardown/score.py`](teardown/score.py) | fait, testé sur des données synthétiques |
+| Lanceur des exécutions (plan, enveloppe de conteneur obligatoire, lecture du flux `stream-json`, essais écartés) | [`teardown/run.py`](teardown/run.py) | écrit et testé avec une fausse CLI ; **jamais lancé contre un modèle** |
+| Noteur : tableau « pièce retirée → delta », dispersion entre essais, seuil de bruit validé par le témoin | [`teardown/score.py`](teardown/score.py) | fait, testé sur des données synthétiques |
 | Protocole (3 tailles de modèle) | [`PROTOCOLE.md`](PROTOCOLE.md) | fait |
 | **Mesures sur 3 tailles de modèle** | `resultats/` | **à mesurer** |
 
@@ -38,19 +40,19 @@ Aucun chiffre n'est publié avant d'avoir été mesuré. Les tests du noteur uti
 Python 3.10+ suffit, sans dépendance. Aucune commande ci-dessous n'appelle un modèle.
 
 ```bash
-python3 -m unittest discover -s tests     # tout le banc (46 tests)
+python3 -m unittest discover -s tests     # tout le banc (64 tests)
 ```
 
 Et pour voir chaque morceau :
 
 ```bash
-python3 teardown/variants.py              # génère et valide les 12 variantes dans build/variantes
+python3 teardown/variants.py              # génère et valide les 13 variantes dans build/variantes
 python3 teardown/taches.py --check        # les 6 katas sont faisables et vérifiables
 python3 teardown/run.py                   # le plan des exécutions, sans rien lancer
 python3 teardown/score.py                 # le tableau vide : « à mesurer » partout
 ```
 
-Les exécutions réelles (appels de modèle) se lancent dans un conteneur jetable : voir [PROTOCOLE.md](PROTOCOLE.md).
+Les exécutions réelles (appels de modèle) se lancent dans un conteneur jetable qui ne voit que le kata : voir [PROTOCOLE.md](PROTOCOLE.md). La garde des commandes du plugin est contournable (comme toute garde par motifs) : le conteneur est la vraie barrière.
 
 ## Ce qui reste à faire
 
@@ -60,7 +62,7 @@ Les exécutions réelles (appels de modèle) se lancent dans un conteneur jetabl
 
 ## Sources du débat
 
-Katz, [« Is the Agent Harness Dead? »](https://www.youtube.com/watch?v=7Y4sbZgBdnc) · Schmid, [« How Foundational Models Became Superhuman in Bash »](https://www.philschmid.de/superhuman-bash) et [« Why Agents Are Soon Only Going to Have 1 Tool »](https://www.philschmid.de/code-mode) · Anthropic, [« Harness design for long-running application development »](https://www.anthropic.com/engineering/harness-design-long-running-apps) · Railway, [« Skill Issue »](https://blog.railway.com/p/skills-issue-writing-skills) · Böckeler, [« Harness engineering for coding agent users »](https://martinfowler.com/articles/exploring-gen-ai/harness-engineering.html).
+Katz, [« Is the Agent Harness Dead? »](https://www.youtube.com/watch?v=7Y4sbZgBdnc) · Schmid, [« How Foundational Models Became Superhuman in Bash »](https://www.philschmid.de/superhuman-bash) et [« Why Agents Are Soon Only Going to Have 1 Tool »](https://www.philschmid.de/code-mode) · Anthropic, [« Harness design for long-running application development »](https://www.anthropic.com/engineering/harness-design-long-running-apps) · Railway (Angelo Saraceno), [« Skill Issue, Writing /skills to solve agent failures »](https://blog.railway.com/p/skills-issue-writing-skills), 24/06/2026 · Böckeler, [« Harness engineering for coding agent users »](https://martinfowler.com/articles/exploring-gen-ai/harness-engineering.html).
 
 ## Licence
 

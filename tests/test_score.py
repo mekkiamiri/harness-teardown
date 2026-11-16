@@ -12,10 +12,11 @@ import score
 import variants
 
 
-def exec_(variante, modele, reussi, tokens, essai=1, tache="t1", bloques=0, passees=0, modifies=False):
+def exec_(variante, modele, reussi, tokens, essai=1, tache="t1", bloques=0, passees=0, modifies=False,
+          valide=True):
     return {"variante": variante, "modele": modele, "tache": tache, "essai": essai, "reussi": reussi,
             "tokens": tokens, "incidents_bloques": bloques, "actions_dangereuses_passees": passees,
-            "tests_modifies": modifies}
+            "tests_modifies": modifies, "valide": valide}
 
 
 SYNTHETIQUE = [
@@ -55,6 +56,41 @@ class TestScore(unittest.TestCase):
     def test_markdown_avec_donnees(self):
         md = score.en_markdown(score.tableau(SYNTHETIQUE, self.donnees, ["petit", "grand"]), ["petit", "grand"])
         self.assertIn("| skill-corriger | compense | -50.0 pts | à mesurer |", md)
+        self.assertIn("Seuil de bruit annoncé", md)
+
+    def test_essais_ecartes_exclus_et_comptes(self):
+        donnees = SYNTHETIQUE + [exec_("complet", "petit", False, 0, essai=3, valide=False)]
+        a = score.agreger(donnees)[("petit", "complet")]
+        self.assertEqual((a["n"], a["ecartes"], a["reussite"]), (2, 1, 1.0))
+        seuls = score.agreger([exec_("vide", "petit", False, 0, valide=False)])[("petit", "vide")]
+        self.assertEqual((seuls["n"], seuls["ecartes"]), (0, 1))
+
+    def test_dispersion_et_bruit(self):
+        # complet : essai 1 = 2/2, essai 2 = 1/2 -> écart-type 35.4 pts, seuil 70.7 pts
+        d = [exec_("complet", "p", True, 100, essai=1, tache="a"), exec_("complet", "p", True, 100, essai=1, tache="b"),
+             exec_("complet", "p", True, 100, essai=2, tache="a"), exec_("complet", "p", False, 100, essai=2, tache="b"),
+             exec_("sans-temoin-neutre", "p", True, 100, essai=1, tache="a"),
+             exec_("sans-temoin-neutre", "p", False, 100, essai=1, tache="b"),
+             exec_("vide", "p", False, 100, essai=1, tache="a"), exec_("vide", "p", False, 100, essai=1, tache="b")]
+        lignes = score.tableau(d, self.donnees, ["p"])
+        ref = self.ligne(lignes, "complet")["modeles"]["p"]
+        self.assertEqual(ref["ecart_type_reussite_pts"], 35.4)
+        temoin = self.ligne(lignes, "sans-temoin-neutre")["modeles"]["p"]
+        self.assertEqual(temoin["seuil_bruit_pts"], 70.8)
+        self.assertTrue(temoin["dans_le_bruit"])
+        self.assertFalse(self.ligne(lignes, "vide")["modeles"]["p"]["dans_le_bruit"])
+        self.assertEqual(score.verdict_temoin(lignes, ["p"])["p"], "témoin dans le bruit : le seuil tient")
+        self.assertIn("(bruit)", score.en_markdown(lignes, ["p"]))
+
+    def test_temoin_hors_du_bruit(self):
+        d = [exec_("complet", "p", True, 1, essai=1), exec_("complet", "p", True, 1, essai=2),
+             exec_("sans-temoin-neutre", "p", False, 1, essai=1)]
+        lignes = score.tableau(d, self.donnees, ["p"])
+        self.assertIn("trop bruité", score.verdict_temoin(lignes, ["p"])["p"])
+
+    def test_bruit_inconnu_avec_un_essai(self):
+        d = [exec_("complet", "p", True, 1), exec_("sans-temoin-neutre", "p", True, 1)]
+        self.assertIn("bruit inconnu", score.verdict_temoin(score.tableau(d, self.donnees, ["p"]), ["p"])["p"])
 
     def test_format_invalide(self):
         self.assertTrue(score.verifier_enregistrement({"variante": "x"}))

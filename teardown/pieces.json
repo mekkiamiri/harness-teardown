@@ -3,7 +3,8 @@
   "legende": {
     "compense": "La pièce compense une limite supposée du modèle. Si le modèle progresse, elle peut devenir inutile.",
     "gouverne": "La pièce impose une règle, une sécurité, une vérification ou une limite de coût, quel que soit le modèle.",
-    "prediction": "Contribution attendue de la pièce selon la taille du modèle : « + » elle aide, « 0 » elle ne change rien, « ? » on ne sait pas. C'est une hypothèse du talk, pas un résultat."
+    "prediction": "Contribution attendue de la pièce selon la taille du modèle : « + » elle aide, « 0 » elle ne change rien, « ? » on ne sait pas, « — » hors de portée de ce banc. C'est une hypothèse du talk, pas un résultat.",
+    "temoin": "Pièce témoin, sans aucun effet : son Δ mesure le bruit du banc. Elle n'est ni « compense » ni « gouverne »."
   },
   "pieces": [
     {
@@ -186,8 +187,8 @@
       "nom": "Hook PostToolUse « tests après chaque modification »",
       "fait": "Après chaque modification d'un fichier Python, relance les tests et montre les échecs à l'agent.",
       "type": "hook PostToolUse (Write|Edit)",
-      "etiquette": "gouverne",
-      "categorie": "vérification",
+      "etiquette": "compense",
+      "categorie": "retour automatique (sensor)",
       "fichier_etiquete": "scripts/tests_apres_edition.py",
       "hypothese": "Sans retour automatique des tests, l'agent ne vérifie pas toujours son correctif avant de passer à la suite.",
       "retrait": {
@@ -202,10 +203,10 @@
       "mesure": "réussite, tokens",
       "prediction": {
         "petit": "+",
-        "moyen": "+",
+        "moyen": "0",
         "grand": "0"
       },
-      "discussion": "Cas limite de la grille : si un grand modèle lance les tests de lui-même, ce hook ne fait que compenser un oubli. C'est un « sensor » au sens de Birgitta Böckeler."
+      "discussion": "Reclassé « compense » : il ne bloque rien et n'impose rien, il apporte un retour que l'agent peut obtenir seul en lançant les tests. Son hypothèse décrit donc une limite du modèle. C'est un « sensor » au sens de Birgitta Böckeler ; c'est le hook Stop, lui, qui gouverne la fin de la tâche."
     },
     {
       "id": "hook-verif-avant-fin",
@@ -249,13 +250,37 @@
         "scripts_hooks": []
       },
       "comment_retirer": "Supprimer le dossier evals/.",
-      "mesure": "aucun effet attendu pendant une exécution : protège le plugin contre les régressions",
+      "mesure": "hors de portée de ce banc : les évals protègent le plugin contre les régressions, elles n'agissent pas pendant une exécution",
+      "prediction": {
+        "petit": "—",
+        "moyen": "—",
+        "grand": "—"
+      },
+      "discussion": "Pièce « gouverne » réelle, mais qui agit sur le plugin (avant de le publier) et pas pendant une exécution. Son Δ attendu est nul par construction : il ne dira pas que gouverner ne sert à rien. Le bruit du banc se lit sur la pièce témoin, pas ici."
+    },
+    {
+      "id": "temoin-neutre",
+      "nom": "Pièce témoin (sans effet)",
+      "fait": "Un fichier que rien ne charge : ni skill, ni agent, ni hook ne le lit.",
+      "type": "témoin",
+      "etiquette": "témoin",
+      "categorie": "pièce sans effet",
+      "fichier_etiquete": "temoin/LISEZMOI.md",
+      "hypothese": "Aucune : la retirer ne peut rien changer. Son Δ mesure le bruit du banc.",
+      "retrait": {
+        "chemins": [
+          "temoin"
+        ],
+        "scripts_hooks": []
+      },
+      "comment_retirer": "Supprimer le dossier temoin/.",
+      "mesure": "bruit du banc : réussite, tokens",
       "prediction": {
         "petit": "0",
         "moyen": "0",
         "grand": "0"
       },
-      "discussion": "Témoin du banc : la retirer ne doit rien changer aux mesures. Si elle change quelque chose, c'est le banc qui est bruité."
+      "discussion": "Si son Δ dépasse le seuil de bruit annoncé, le banc est trop bruité pour conclure sur les autres pièces."
     }
   ]
 }

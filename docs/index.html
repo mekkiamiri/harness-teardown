@@ -68,7 +68,7 @@
       <div class="k">Position A</div>
       <h3>« Le modèle absorbe le harnais »</h3>
       <ul>
-        <li>Jediah Katz, <a href="https://www.youtube.com/watch?v=7Y4sbZgBdnc">« Is the Agent Harness Dead? »</a> (vidéo, 2026).</li>
+        <li>Jediah Katz, <a href="https://www.youtube.com/watch?v=7Y4sbZgBdnc">« Is the Agent Harness Dead? »</a> (vidéo, 2026 ; d'après sa description et ses chapitres).</li>
         <li>Phil Schmid ne garde que <code>bash</code> et un visualiseur de médias : « Task completion stayed in the same range » (<a href="https://www.philschmid.de/superhuman-bash">01/09/2026</a>).</li>
         <li>Railway fusionne 12 skills en un seul skill routeur (<a href="https://blog.railway.com/p/skills-issue-writing-skills">« Skill Issue », 24/06/2026</a>).</li>
       </ul>
@@ -89,11 +89,11 @@
   <blockquote>« every component in a harness encodes an assumption about what the model can't do on its own »<br><span class="muted" style="font-family:'Martian Mono';font-size:.8rem">Anthropic, Harness design for long-running application development</span></blockquote>
   <div class="cols">
     <div class="panel"><div class="k">compense</div><h3>La pièce compense le modèle</h3><p>Prompt détaillé, planification imposée, micro-outil, sous-agent, contexte injecté. Elle encode « le modèle ne sait pas… ». Si le modèle progresse, elle peut devenir inutile.</p></div>
-    <div class="panel"><div class="k">gouverne</div><h3>La pièce gouverne</h3><p>Règle, sécurité, vérification, coût : un hook qui bloque une commande, un hook qui lance les tests, une éval. Elle vaut quel que soit le modèle.</p></div>
+    <div class="panel"><div class="k">gouverne</div><h3>La pièce gouverne</h3><p>Règle, sécurité, vérification, coût : un hook qui bloque une commande, un hook qui refuse la fin tant que les tests échouent, une éval. Elle vaut quel que soit le modèle.</p></div>
   </div>
 
   <h2>À vous de classer</h2>
-  <p class="lead">Les 10 pièces du plugin d'exemple <code>kata-fixer</code>. Choisissez une étiquette, puis comparez avec la prédiction du talk. Cette prédiction est <em>une hypothèse</em> : les mesures peuvent la contredire, et le talk le dira.</p>
+  <p class="lead">Les 10 pièces réelles du plugin d'exemple <code>kata-fixer</code> (la onzième, un témoin sans effet, ne se classe pas). Choisissez une étiquette, puis comparez avec la prédiction du talk. Cette prédiction est <em>une hypothèse</em> : les mesures peuvent la contredire, et le talk le dira.</p>
   <div class="barre">
     <span id="compteur" class="muted">0 / 10 classées</span>
     <button class="principal" id="toutReveler">Voir toutes les prédictions</button>
@@ -103,7 +103,7 @@
   <p id="bilan" class="muted"></p>
 
   <h2>Les résultats</h2>
-  <p class="lead">Δ de réussite quand on retire la pièce, contre le plugin complet, par taille de modèle. Mesuré sur 6 katas aux tests cachés, plusieurs essais par case.</p>
+  <p class="lead">Δ de réussite quand on retire la pièce, contre le plugin complet, par taille de modèle. Mesuré sur 6 katas aux tests cachés, 3 essais par case. Un Δ ne compte que s'il dépasse le seuil de bruit annoncé (2 × l'écart-type entre essais du plugin complet) ; la dernière ligne, une pièce témoin sans aucun effet, vérifie ce seuil.</p>
   <div class="scroll"><table id="resultats"><thead><tr><th>Pièce retirée</th><th>Petit</th><th>Moyen</th><th>Grand</th></tr></thead><tbody></tbody></table></div>
   <p style="margin-top:14px"><span class="todo">à mesurer · publication avant la conférence</span></p>
 
@@ -111,7 +111,7 @@
   <pre>git clone https://github.com/mekkiamiri/harness-teardown
 cd harness-teardown
 python3 -m unittest discover -s tests       # le banc, sans appel de modèle
-python3 teardown/variants.py                # 12 variantes du plugin, validées
+python3 teardown/variants.py                # 13 variantes du plugin, validées
 python3 teardown/run.py                     # le plan des exécutions (rien n'est lancé)
 python3 teardown/score.py resultats/&lt;date&gt;  # le tableau pièce retirée → delta</pre>
   <p class="muted">Les exécutions réelles se lancent dans un conteneur jetable : voir <a href="https://github.com/mekkiamiri/harness-teardown/blob/main/PROTOCOLE.md">PROTOCOLE.md</a>.</p>
@@ -248,15 +248,15 @@ const PIECES = /*PIECES*/[
   "nom": "Hook PostToolUse « tests après chaque modification »",
   "fait": "Après chaque modification d'un fichier Python, relance les tests et montre les échecs à l'agent.",
   "type": "hook PostToolUse (Write|Edit)",
-  "etiquette": "gouverne",
-  "categorie": "vérification",
+  "etiquette": "compense",
+  "categorie": "retour automatique (sensor)",
   "hypothese": "Sans retour automatique des tests, l'agent ne vérifie pas toujours son correctif avant de passer à la suite.",
   "prediction": {
    "petit": "+",
-   "moyen": "+",
+   "moyen": "0",
    "grand": "0"
   },
-  "discussion": "Cas limite de la grille : si un grand modèle lance les tests de lui-même, ce hook ne fait que compenser un oubli. C'est un « sensor » au sens de Birgitta Böckeler.",
+  "discussion": "Reclassé « compense » : il ne bloque rien et n'impose rien, il apporte un retour que l'agent peut obtenir seul en lançant les tests. Son hypothèse décrit donc une limite du modèle. C'est un « sensor » au sens de Birgitta Böckeler ; c'est le hook Stop, lui, qui gouverne la fin de la tâche.",
   "mesure": "réussite, tokens"
  },
  {
@@ -284,16 +284,32 @@ const PIECES = /*PIECES*/[
   "categorie": "éval",
   "hypothese": "Le plugin peut perdre son effet sans que personne ne le voie, à chaque modification du plugin ou du modèle.",
   "prediction": {
+   "petit": "—",
+   "moyen": "—",
+   "grand": "—"
+  },
+  "discussion": "Pièce « gouverne » réelle, mais qui agit sur le plugin (avant de le publier) et pas pendant une exécution. Son Δ attendu est nul par construction : il ne dira pas que gouverner ne sert à rien. Le bruit du banc se lit sur la pièce témoin, pas ici.",
+  "mesure": "hors de portée de ce banc : les évals protègent le plugin contre les régressions, elles n'agissent pas pendant une exécution"
+ },
+ {
+  "id": "temoin-neutre",
+  "nom": "Pièce témoin (sans effet)",
+  "fait": "Un fichier que rien ne charge : ni skill, ni agent, ni hook ne le lit.",
+  "type": "témoin",
+  "etiquette": "témoin",
+  "categorie": "pièce sans effet",
+  "hypothese": "Aucune : la retirer ne peut rien changer. Son Δ mesure le bruit du banc.",
+  "prediction": {
    "petit": "0",
    "moyen": "0",
    "grand": "0"
   },
-  "discussion": "Témoin du banc : la retirer ne doit rien changer aux mesures. Si elle change quelque chose, c'est le banc qui est bruité.",
-  "mesure": "aucun effet attendu pendant une exécution : protège le plugin contre les régressions"
+  "discussion": "Si son Δ dépasse le seuil de bruit annoncé, le banc est trop bruité pour conclure sur les autres pièces.",
+  "mesure": "bruit du banc : réussite, tokens"
  }
 ]/*FIN-PIECES*/;
+const JEU = PIECES.filter(p => p.etiquette !== "témoin");
 const TAILLES = [["petit", "petit modèle"], ["moyen", "moyen"], ["grand", "grand"]];
-const SENS = { "+": "elle aide", "0": "elle ne change rien", "?": "on ne sait pas" };
 const choix = {};
 const zone = document.getElementById("pieces");
 
@@ -301,7 +317,7 @@ function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<":
 function code(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
 
 function rendre() {
-  zone.innerHTML = PIECES.map(p => `
+  zone.innerHTML = JEU.map(p => `
     <article class="piece" id="p-${p.id}">
       <div class="tete"><h3>${esc(p.nom)}</h3><span class="type">${esc(p.type)}</span></div>
       <p>${code(p.fait)}</p>
@@ -322,7 +338,7 @@ function rendre() {
 }
 
 function reveler(id) {
-  const p = PIECES.find(x => x.id === id);
+  const p = JEU.find(x => x.id === id);
   const el = document.getElementById("p-" + id);
   el.classList.add("revele");
   const avis = el.querySelector(".avis");
@@ -334,11 +350,11 @@ function reveler(id) {
 
 function majCompteur() {
   const n = Object.keys(choix).length;
-  document.getElementById("compteur").textContent = `${n} / ${PIECES.length} classées`;
-  const reveles = PIECES.filter(p => document.getElementById("p-" + p.id)?.classList.contains("revele") && choix[p.id]);
+  document.getElementById("compteur").textContent = `${n} / ${JEU.length} classées`;
+  const reveles = JEU.filter(p => document.getElementById("p-" + p.id)?.classList.contains("revele") && choix[p.id]);
   const accord = reveles.filter(p => choix[p.id] === p.etiquette).length;
   document.getElementById("bilan").textContent = reveles.length
-    ? `Votre classement rejoint la prédiction du talk sur ${accord} pièce(s) sur ${reveles.length} comparée(s). Les légendes : « + » elle aide, « 0 » elle ne change rien, « ? » on ne sait pas.`
+    ? `Votre classement rejoint la prédiction du talk sur ${accord} pièce(s) sur ${reveles.length} comparée(s). Les légendes : « + » elle aide, « 0 » elle ne change rien, « ? » on ne sait pas, « — » hors de portée du banc.`
     : "";
 }
 
@@ -352,7 +368,7 @@ zone.addEventListener("click", e => {
   if (document.getElementById("p-" + id).classList.contains("revele")) reveler(id);
   majCompteur();
 });
-document.getElementById("toutReveler").addEventListener("click", () => PIECES.forEach(p => reveler(p.id)));
+document.getElementById("toutReveler").addEventListener("click", () => JEU.forEach(p => reveler(p.id)));
 document.getElementById("recommencer").addEventListener("click", () => { for (const k in choix) delete choix[k]; rendre(); });
 
 document.querySelector("#resultats tbody").innerHTML = PIECES.map(p =>

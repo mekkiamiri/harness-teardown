@@ -21,7 +21,10 @@ def dossier_projet(entree: dict) -> str:
 
 
 def noter_incident(piece: str, regle: str, detail: str) -> None:
-    """Ajoute une ligne au journal d'incidents si le banc l'a demandé (variable TEARDOWN_INCIDENTS)."""
+    """Ajoute une ligne au journal d'incidents si le banc l'a demandé (variable TEARDOWN_INCIDENTS).
+
+    Ne lève jamais d'exception : un hook qui bloque doit sortir en 2 même si le journal est inaccessible.
+    """
     chemin = os.environ.get("TEARDOWN_INCIDENTS")
     if not chemin:
         return
@@ -31,8 +34,11 @@ def noter_incident(piece: str, regle: str, detail: str) -> None:
         "regle": regle,
         "detail": detail[:300],
     }
-    with open(chemin, "a", encoding="utf-8") as f:
-        f.write(json.dumps(ligne, ensure_ascii=False) + "\n")
+    try:
+        with open(chemin, "a", encoding="utf-8") as f:
+            f.write(json.dumps(ligne, ensure_ascii=False) + "\n")
+    except Exception as e:  # le journal ne doit jamais empêcher un blocage
+        print(f"(journal d'incidents indisponible : {e})", file=sys.stderr)
 
 
 def lancer_tests(racine: str, delai: int = 120) -> tuple[bool, str]:

@@ -84,6 +84,36 @@ class TestValidateur(unittest.TestCase):
         self.assertTrue(variants.valider(self.p))
 
 
+class TestSortie(unittest.TestCase):
+    def test_refuse_le_depot_et_ses_parents(self):
+        from tests.aide import RACINE
+        for cible in (RACINE, RACINE.parent, RACINE / "plugin", RACINE / "plugin" / "skills"):
+            with self.subTest(cible=cible):
+                with self.assertRaises(ValueError):
+                    variants.verifier_sortie(cible, PLUGIN)
+
+    def test_refuse_un_dossier_etranger_non_vide(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "precieux.txt").write_text("x")
+            with self.assertRaises(ValueError):
+                variants.generer(Path(tmp))
+            self.assertTrue((Path(tmp) / "precieux.txt").exists())
+
+    def test_regenere_son_propre_dossier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            variants.generer(Path(tmp) / "v")
+            variants.generer(Path(tmp) / "v")
+            self.assertTrue((Path(tmp) / "v" / variants.MARQUEUR).exists())
+
+    def test_cli_refuse(self):
+        import io
+        from contextlib import redirect_stderr
+        from tests.aide import RACINE
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(variants.main(["--sortie", str(RACINE)]), 2)
+        self.assertTrue((RACINE / "teardown" / "pieces.json").exists())
+
+
 class TestManifesteDesPieces(unittest.TestCase):
     def test_champs(self):
         donnees = variants.charger_pieces()
@@ -93,10 +123,19 @@ class TestManifesteDesPieces(unittest.TestCase):
             with self.subTest(piece=p["id"]):
                 for champ in ("id", "type", "etiquette", "hypothese", "comment_retirer", "retrait", "prediction"):
                     self.assertTrue(p.get(champ), champ)
-                self.assertIn(p["etiquette"], ("compense", "gouverne"))
+                self.assertIn(p["etiquette"], ("compense", "gouverne", "témoin"))
+                self.assertTrue(set(p["prediction"].values()) <= {"+", "0", "?", "—"})
                 self.assertEqual(set(p["prediction"]), {"petit", "moyen", "grand"})
         etiquettes = {p["etiquette"] for p in donnees["pieces"]}
-        self.assertEqual(etiquettes, {"compense", "gouverne"})
+        self.assertEqual(etiquettes, {"compense", "gouverne", "témoin"})
+        temoins = [p for p in donnees["pieces"] if p["etiquette"] == "témoin"]
+        self.assertEqual([p["id"] for p in temoins], ["temoin-neutre"])
+
+    def test_temoin_sans_effet(self):
+        """Aucun composant chargé du plugin ne mentionne le dossier témoin (le README n'est pas chargé)."""
+        for f in PLUGIN.rglob("*"):
+            if f.is_file() and "temoin" not in f.parts and "__pycache__" not in f.parts and f.name != "README.md":
+                self.assertNotIn("temoin/", f.read_text(encoding="utf-8", errors="ignore"), str(f))
 
 
 if __name__ == "__main__":

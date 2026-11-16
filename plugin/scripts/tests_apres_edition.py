@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# teardown: id=hook-tests-apres-edition · étiquette=gouverne · catégorie=vérification
+# teardown: id=hook-tests-apres-edition · étiquette=compense · catégorie=retour automatique (sensor)
 """PostToolUse (Write|Edit) : relance les tests visibles après chaque modification de fichier Python.
 
 Si les tests échouent, code 2 : la fin de la sortie des tests est montrée à l'agent
