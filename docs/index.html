@@ -59,7 +59,7 @@
   <div class="k">Devoxx France 2027 · Tools-in-Action · 30 min</div>
   <h1 style="margin-top:18px">Le harnais est-il mort ?<br><em>Je l'ai démonté pièce par pièce.</em></h1>
   <p class="lead" style="margin-top:24px">Un plugin d'équipe Claude Code (skills, hooks, sous-agent, micro-outil, évals) est démonté une pièce à la fois, sur trois tailles de modèle, avec des tâches dont la réponse se vérifie automatiquement. Avant les mesures, à vous de jouer : chaque pièce compense-t-elle le modèle, ou gouverne-t-elle ?</p>
-  <p><span class="todo">mesures en cours · aucun résultat publié</span></p>
+  <p><span class="todo">mesures publiées en janvier 2027 · aucun résultat avant</span></p>
   <p class="muted"><a href="https://github.com/mekkiamiri/harness-teardown">Dépôt</a> · <a href="slides/">Slides</a></p>
 
   <h2>Le débat</h2>
@@ -102,10 +102,11 @@
   <div id="pieces"></div>
   <p id="bilan" class="muted"></p>
 
-  <h2>Les résultats</h2>
-  <p class="lead">Δ de réussite quand on retire la pièce, contre le plugin complet, par taille de modèle. Mesuré sur 6 katas aux tests cachés, 3 essais par case. Un Δ ne compte que s'il dépasse le seuil de bruit annoncé (2 × l'écart-type entre essais du plugin complet) ; la dernière ligne, une pièce témoin sans aucun effet, vérifie ce seuil.</p>
+  <h2>Le pari, avant les résultats</h2>
+  <p class="lead">Ce que j'attends quand on retire chaque pièce, par taille de modèle : « + » la pièce aide, « 0 » elle ne change rien, « ? » je ne sais pas, « — » hors de portée du banc. Ces prédictions sont écrites <em>avant</em> les mesures, dans <code>teardown/pieces.json</code> : ce sont des hypothèses, pas des résultats.</p>
   <div class="scroll"><table id="resultats"><thead><tr><th>Pièce retirée</th><th>Petit</th><th>Moyen</th><th>Grand</th></tr></thead><tbody></tbody></table></div>
-  <p style="margin-top:14px"><span class="todo">à mesurer · publication avant la conférence</span></p>
+  <p class="muted" style="margin-top:14px">Ce qui sera mesuré : le Δ de réussite contre le plugin complet, sur 6 katas aux tests cachés, 3 essais par case, plus les tokens et les commandes dangereuses passées. Un Δ ne comptera que s'il dépasse le seuil de bruit annoncé (2 × l'écart-type entre essais du plugin complet) ; la pièce témoin, sans aucun effet, vérifie ce seuil.</p>
+  <p style="margin-top:14px"><span class="todo">mesures publiées en janvier 2027</span></p>
 
   <h2>Refaire l'expérience</h2>
   <pre>git clone https://github.com/mekkiamiri/harness-teardown
@@ -372,7 +373,7 @@ document.getElementById("toutReveler").addEventListener("click", () => JEU.forEa
 document.getElementById("recommencer").addEventListener("click", () => { for (const k in choix) delete choix[k]; rendre(); });
 
 document.querySelector("#resultats tbody").innerHTML = PIECES.map(p =>
-  `<tr><td>${esc(p.nom)}</td>${TAILLES.map(() => '<td class="n">à mesurer</td>').join("")}</tr>`).join("");
+  `<tr><td>${esc(p.nom)}</td>${TAILLES.map(([k]) => `<td class="n">${esc(p.prediction[k])}</td>`).join("")}</tr>`).join("");
 
 rendre();
 </script>
