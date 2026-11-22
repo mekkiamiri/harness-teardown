@@ -4,3 +4,5 @@ __pycache__/
 build/
 resultats/brouillon/
 plugin/evals/results/
+# flux bruts : chemins du poste de mesure, gardés en local
+resultats/**/*.stream.jsonl

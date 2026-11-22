@@ -29,7 +29,7 @@ FLUX = [
 
 
 def meta(**kw):
-    return {"variante": "complet", "modele": "m", "tache": "t", "essai": 1, "code_sortie": 0, **kw}
+    return {"variante": "complet", "modele": "modele-de-test", "tache": "t", "essai": 1, "code_sortie": 0, **kw}
 
 
 class TestRejets(unittest.TestCase):
@@ -65,15 +65,18 @@ class TestLanceur(unittest.TestCase):
     def test_plan_sans_execution(self):
         out = io.StringIO()
         with redirect_stdout(out):
-            self.assertEqual(run.main(["--essais", "3"]), 0)
+            self.assertEqual(run.main(["--essais", "3", "--modeles", "a,b,c"]), 0)
         texte = out.getvalue()
         self.assertIn("3 modèle(s) × 13 variante(s) × 6 tâche(s) × 3 essai(s) = 702 exécutions", texte)
+        self.assertIn("dossier jetable", texte)
         self.assertIn("Rien n'a été lancé", texte)
 
     def test_refus_sans_enveloppe(self):
         with mock.patch("subprocess.run") as appel, redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-            self.assertEqual(run.main(["--executer", "--essais", "1", "--taches", "palindrome"]), 2)
-            self.assertEqual(run.main(["--executer", "--essais", "1", "--enveloppe", "docker run img"]), 2)
+            self.assertEqual(run.main(["--executer", "--essais", "1", "--taches", "palindrome",
+                                       "--isolation", "conteneur"]), 2)
+            self.assertEqual(run.main(["--executer", "--essais", "1", "--isolation", "conteneur",
+                                       "--enveloppe", "docker run img"]), 2)
             appel.assert_not_called()
 
     def test_enveloppe_ne_monte_que_le_kata_et_le_plugin(self):
@@ -89,7 +92,7 @@ class TestLanceur(unittest.TestCase):
         reponses = [mock.Mock(stdout="\n".join(FLUX), returncode=0),
                     sp.TimeoutExpired(cmd="claude", timeout=1, output=b"")]
 
-        def faux_run(cmd):
+        def faux_run(cmd, **options):
             r = reponses.pop(0)
             if isinstance(r, Exception):
                 raise r
@@ -97,7 +100,7 @@ class TestLanceur(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, mock.patch("run._lancer_claude", side_effect=faux_run), \
                 redirect_stdout(io.StringIO()):
             code = run.main(["--modeles", "m", "--variantes", "complet", "--taches", "somme-intervalle",
-                             "--essais", "2", "--executer", "--sortie", tmp,
+                             "--essais", "2", "--executer", "--sortie", tmp, "--isolation", "conteneur",
                              "--enveloppe", "docker run -v {espace}:/kata -v {plugin}:/plugin img"])
             self.assertEqual(code, 0)
             enregs = score.charger([Path(tmp)])
@@ -129,7 +132,7 @@ class TestLanceur(unittest.TestCase):
             note = taches.noter(t, espace)
             journal = Path(tmp) / "incidents.jsonl"
             journal.write_text(json.dumps({"piece": "hook-garde-commandes"}) + "\n")
-            enreg = run.assembler({"variante": "complet", "modele": "sonnet", "tache": t["id"], "essai": 1},
+            enreg = run.assembler({"variante": "complet", "modele": "modele-de-test", "tache": t["id"], "essai": 1},
                                   flux, note, run.compter_incidents(journal))
         self.assertEqual(score.verifier_enregistrement(enreg), [])
         self.assertTrue(enreg["valide"])

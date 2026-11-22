@@ -28,7 +28,7 @@ Une onzième pièce, **témoin**, n'a aucun effet : son Δ mesure le bruit du ba
 | Manifeste des pièces (10 réelles + 1 témoin) : étiquette, hypothèse encodée, comment la retirer, prédiction | [`teardown/pieces.json`](teardown/pieces.json) | fait |
 | Générateur de variantes (complet, vide, sans chaque pièce) + validation | [`teardown/variants.py`](teardown/variants.py) | fait : 13 variantes, toutes valides ; refuse d'écrire dans le dépôt ou un dossier étranger |
 | 6 katas Python avec tests visibles, tests cachés et solution de référence | [`taches/`](taches/), [`teardown/taches.py`](teardown/taches.py) | fait : chaque kata échoue au départ et passe avec la solution |
-| Lanceur des exécutions (plan, enveloppe de conteneur obligatoire, lecture du flux `stream-json`, essais écartés) | [`teardown/run.py`](teardown/run.py) | écrit et testé avec une fausse CLI ; **jamais lancé contre un modèle** |
+| Lanceur des exécutions (plan, dossier jetable + permissions strictes par défaut, conteneur en option, lecture du flux `stream-json`, refus et blocages comptés, modèle servi vérifié, essais écartés) | [`teardown/run.py`](teardown/run.py) | testé avec une fausse CLI, puis lancé contre de vrais modèles (premiers passages dans [`resultats/banc-local-premier-passage/`](resultats/banc-local-premier-passage/)) |
 | Noteur : tableau « pièce retirée → delta », dispersion entre essais, seuil de bruit validé par le témoin | [`teardown/score.py`](teardown/score.py) | fait, testé sur des données synthétiques |
 | Protocole (3 tailles de modèle) | [`PROTOCOLE.md`](PROTOCOLE.md) | fait |
 | **Mesures sur 3 tailles de modèle** | `resultats/` | **à mesurer** |
@@ -40,7 +40,7 @@ Aucun chiffre n'est publié avant d'avoir été mesuré. Les tests du noteur uti
 Python 3.10+ suffit, sans dépendance. Aucune commande ci-dessous n'appelle un modèle.
 
 ```bash
-python3 -m unittest discover -s tests     # tout le banc (64 tests)
+python3 -m unittest discover -s tests     # tout le banc (81 tests)
 ```
 
 Et pour voir chaque morceau :
@@ -52,12 +52,16 @@ python3 teardown/run.py                   # le plan des exécutions, sans rien l
 python3 teardown/score.py                 # le tableau vide : « à mesurer » partout
 ```
 
-Les exécutions réelles (appels de modèle) se lancent dans un conteneur jetable qui ne voit que le kata : voir [PROTOCOLE.md](PROTOCOLE.md). La garde des commandes du plugin est contournable (comme toute garde par motifs) : le conteneur est la vraie barrière.
+Les exécutions réelles (appels de modèle) se lancent avec `--executer` : chaque essai tourne dans un dossier jetable sous `$TMPDIR` (copie du kata et de la variante), et la CLI d'agent n'y exécute que les outils d'une liste blanche (`--permission-mode dontAsk` : lecture, écriture, recherche, et `Bash` limité aux commandes de test). Tout le reste est refusé, et chaque refus est compté comme incident. Voir [PROTOCOLE.md](PROTOCOLE.md). La garde des commandes du plugin est contournable (comme toute garde par motifs) : la liste blanche est la vraie barrière.
+
+```bash
+python3 teardown/run.py --taches panier-remise --variantes complet,sans-hook-garde-tests --essais 1 --executer
+```
 
 ## Ce qui reste à faire
 
 - Lancer le protocole sur trois tailles de modèle et publier `resultats/` (prévu avant la conférence).
-- Vérifier au premier lancement réel le format exact du flux `stream-json` lu par `run.py` (écrit d'après la documentation, pas encore confronté à une vraie sortie).
+- Trouver un accès à un troisième modèle, plus petit : sur le poste de mesure, seuls `claude-sonnet-5-5` et `claude-opus-5-5` sont servis.
 - Montrer les erreurs réelles des agents telles quelles, pas seulement les taux.
 
 ## Sources du débat
