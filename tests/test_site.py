@@ -14,8 +14,9 @@ class TestPage(unittest.TestCase):
     def test_pieces_a_jour(self):
         self.assertEqual(build_site.page_a_jour(self.html), self.html)
 
-    def test_resultats_a_mesurer(self):
-        self.assertIn("à mesurer", self.html)
+    def test_aucun_resultat_invente(self):
+        self.assertIn("janvier 2027", self.html)
+        self.assertNotIn("à mesurer", self.html)
         texte = re.sub(r"<style>.*?</style>", "", self.html, flags=re.S)
         self.assertNotRegex(texte, r"\d+\s?%")
 
@@ -36,10 +37,13 @@ class TestSlides(unittest.TestCase):
         for titre in re.findall(r"<h2[^>]*>(.*?)</h2>", source):
             self.assertIn(titre, construit)
 
-    def test_tableau_des_resultats_vide(self):
+    def test_aucun_resultat_invente_ni_case_vide(self):
         source = (RACINE / "slides" / "slides.html").read_text(encoding="utf-8")
-        self.assertNotRegex(source, r'<td class="n">[^<—]*\d')
-        self.assertIn('class="todo', source)
+        # Les cases ne contiennent que des prédictions (+, 0, ?), jamais un chiffre de résultat.
+        for case in re.findall(r'<td class="n">([^<]*)</td>', source):
+            self.assertIn(case, {"+", "0", "?", "—"})
+        self.assertNotIn('class="todo', source)
+        self.assertNotIn("à mesurer", source)
 
 
 if __name__ == "__main__":

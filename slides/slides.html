@@ -1,7 +1,9 @@
 <!-- Slides du talk « Le harnais est-il mort ? Je l'ai démonté pièce par pièce » (Tools-in-Action, 30 min)
      Construire : python3 <kit>/build_deck.py slides/slides.html docs/slides/index.html "Le harnais est-il mort ?"
-     Règle : aucun chiffre de résultat avant mesure ; les emplacements sont marqués « à mesurer ».
-     Plan : 0-4 débat · 4-9 banc · 9-21 démontage en direct · 21-27 résultats · 27-30 grille et questions -->
+     Règle : aucun chiffre de résultat avant mesure. Avant les mesures, on montre l'hypothèse (marquée comme telle),
+     le protocole et ce qui tourne vraiment ; les résultats sont publiés dans le dépôt en janvier 2027.
+     Plan : 0-4 débat · 4-9 banc · 9-21 démontage · 21-27 résultats · 27-30 grille et questions
+     Version 40 min (Strasbourg) : les notes indiquent ce qui s'ajoute (protocole 10-15, limites 33-36). -->
 
 <!-- 1. Titre · 0:00 -->
 <section class="slide">
@@ -12,7 +14,7 @@
   </div>
   <div class="readouts reveal" style="position:absolute;left:120px;bottom:130px"><div><b>10</b><span>pièces</span></div><div><b>3</b><span>tailles de modèle</span></div><div><b>6</b><span>katas</span></div></div>
   <div style="position:absolute;right:120px;bottom:140px;text-align:right" class="reveal"><h3>Mekki Amiri</h3><p class="muted" style="font-size:24px;margin:8px 0 0">Tech Lead · architecte système</p></div>
-  <aside class="notes">30 minutes. Une question qui agite la communauté, un plugin démonté en direct, et des mesures plutôt que des opinions.</aside>
+  <aside class="notes">30 minutes. Une question qui agite la communauté, un plugin démonté pièce par pièce, et des mesures plutôt que des opinions.</aside>
 </section>
 
 <!-- 2. Le débat · 0:30 -->
@@ -118,18 +120,32 @@ temoin/  (chargé par rien)                             <span class="c">// témo
     </ul>
   </div>
   {{CHROME}}
-  <aside class="notes">702 exécutions. Variantes : complet, vide, et une sans chaque pièce. L'agent tourne dans un conteneur qui ne voit que le kata : ni tests cachés, ni solutions, et certaines variantes n'ont plus de garde. Un essai planté, hors délai ou qui fouille les réponses est écarté et compté à part.</aside>
+  <aside class="notes">702 exécutions. Variantes : complet, vide, et une sans chaque pièce. L'agent tourne dans un conteneur qui ne voit que le kata : ni tests cachés, ni solutions, et certaines variantes n'ont plus de garde. Un essai planté, hors délai ou qui fouille les réponses est écarté et compté à part. En 40 min : développer ici le conteneur qui ne voit que le kata, et les essais écartés (PROTOCOLE.md).</aside>
 </section>
 
-<!-- 10. Section démontage · 9:00 -->
+<!-- 10. Mon banc mentait · 8:00 -->
+<section class="slide">
+  <div class="pad">
+    <div class="k reveal">Mon banc mentait · observé sur mon poste</div>
+    <ul class="steps reveal" style="margin-top:30px">
+      <li data-n="01"><span>claude -p "ok"</span> déclenche <em>8 hooks</em> SessionStart.<br><span class="muted" style="font-size:26px">→ conteneur, HOME neuf, --setting-sources project</span></li>
+      <li data-n="02"><span>--model haiku</span> et <span>--model sonnet</span> : <em>le même modèle</em>.<br><span class="muted" style="font-size:26px">→ identifiants complets, champ model relevé à chaque exécution</span></li>
+      <li data-n="03">Chronométrer de UserPromptSubmit à Stop : <em>toute la chaîne</em>.<br><span class="muted" style="font-size:26px">→ une exécution = un prompt, une mesure</span></li>
+    </ul>
+  </div>
+  {{CHROME}}
+  <aside class="notes">Avant de mesurer le harnais, j'ai dû mesurer mon banc. Un simple appel « ok » déclenchait 8 hooks de démarrage : je mesurais aussi mon propre harnais. Et deux alias de modèle faisaient tourner le même modèle, parce que l'environnement réécrit les alias : on vérifie le modèle réellement servi dans la réponse. Le troisième piège vient de mon outil de suivi : un seul prompt en mode auto enchaîne beaucoup de commandes, seuls les hooks de sous-agent découpent de façon fiable. Si le temps le permet : un plafond de budget renvoie le code 1 avec un JSON valide, et un appel structuré minimal coûtait déjà 0,28 à 0,56 $.</aside>
+</section>
+
+<!-- 11. Section démontage · 9:00 -->
 <section class="slide">
   {{RULER}}
-  <div class="pad" style="top:320px"><div class="k reveal">Partie 2 · en direct</div><h1 class="reveal" style="margin-top:30px">Le <em>démontage</em></h1></div>
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 2</div><h1 class="reveal" style="margin-top:30px">Le <em>démontage</em></h1></div>
   {{CHROME}}
-  <aside class="notes">Un seul retrait en direct : la garde des commandes, sur un kata court (panier-remise). Les deux autres retraits passent en vidéo enregistrée : les agents sont lents, et 12 minutes ne suffisent pas pour trois exécutions en direct. Le dire au public. Plan B pour le direct : la vidéo de la même commande.</aside>
+  <aside class="notes">Démo à venir : un retrait rejoué contre un vrai modèle (la garde des commandes, sur panier-remise), les deux autres en vidéo. Aujourd'hui, run.py n'a jamais été lancé contre un modèle : il est testé avec une fausse CLI. Ce qui tourne déjà en direct : la génération des variantes et la garde appelée à la main. Plan B : la vidéo de la même commande.</aside>
 </section>
 
-<!-- 11. Retirer une pièce · 9:30 -->
+<!-- 12. Retirer une pièce · 9:30 -->
 <section class="slide">
   <div class="pad">
     <div class="k reveal">Retirer une pièce</div>
@@ -141,94 +157,90 @@ vide                         0 pièce(s)  valide</pre>
     <p class="muted reveal" style="margin-top:36px">Chaque variante reste un plugin valide.</p>
   </div>
   {{CHROME}}
-  <aside class="notes">Démo : générer les 12 variantes. Montrer hooks.json avant et après le retrait de la garde des commandes.</aside>
+  <aside class="notes">Démo réelle, sans modèle : générer les 13 variantes (complet, vide, et une sans chaque pièce). Montrer hooks.json avant et après le retrait de la garde des commandes.</aside>
 </section>
 
-<!-- 12. Pièce 1 · compense · 11:00 -->
+<!-- 13. Pièce 1 · compense · 11:00 -->
 <section class="slide">
-  <div class="pad" style="top:200px">
-    <div class="k reveal">Pièce 1 · compense · prompt détaillé · en vidéo</div>
+  <div class="pad" style="top:180px">
+    <div class="k reveal">Pièce 1 · compense · prompt détaillé</div>
     <h2 class="reveal" style="margin-top:30px">Skill <em>corriger-kata</em></h2>
-    <p class="reveal" style="margin-top:50px">« Le modèle ne sait pas, sans procédure écrite, isoler un bug. »</p>
-    <div class="todo reveal" style="margin-top:30px">Δ réussite par taille · à mesurer</div>
+    <p class="reveal" style="margin-top:30px">Hypothèse encodée : « sans procédure écrite, le modèle ne sait pas isoler un bug. »</p>
+    <div class="readouts reveal" style="margin-top:40px"><div><b>+</b><span>petit · prédit</span></div><div><b>0</b><span>moyen · prédit</span></div><div><b>0</b><span>grand · prédit</span></div></div>
+    <p class="muted reveal" style="font-size:24px;margin-top:24px">Prédiction écrite avant toute mesure · teardown/pieces.json</p>
   </div>
   {{CHROME}}
-  <aside class="notes">Vidéo enregistrée : run.py sur somme-intervalle, complet puis sans-skill-corriger. Prédiction : aide le petit modèle, rien au grand.</aside>
+  <aside class="notes">Ce sont des paris, pas des résultats. Je m'attends à ce que la procédure en 8 étapes aide le petit modèle et ne change rien aux plus grands : ils lisent l'énoncé et lancent les tests sans qu'on le leur dise. Démo à venir : run.py sur somme-intervalle, complet puis sans-skill-corriger, en vidéo.</aside>
 </section>
 
-<!-- 13. Pièce 2 · gouverne · 14:30 -->
+<!-- 14. Pièce 2 · gouverne · 14:30 -->
 <section class="slide">
   <div class="pad">
-    <div class="k reveal">Pièce 2 · gouverne · sécurité · en direct</div>
-    <pre class="code reveal" style="margin-top:40px"><span class="c"># ENONCE.md du kata panier-remise</span>
-Habitude de l'équipe avant de lancer les tests :
-<span class="h">rm -rf build __pycache__</span> puis <span class="h">pip install -r requirements.txt</span></pre>
+    <div class="k reveal">Pièce 2 · gouverne · sécurité</div>
+    <pre class="code reveal" style="margin-top:40px"><span class="c"># le piège, dans ENONCE.md du kata panier-remise</span>
+<span class="h">rm -rf build __pycache__</span> puis <span class="h">pip install -r requirements.txt</span>
+<span class="c"># la garde, appelée sur cette commande (sortie réelle, code 2)</span>
+Commande bloquée par la règle d'équipe
+(installation de paquet, suppression récursive).</pre>
     <h3 class="reveal" style="margin-top:50px">Qui tombe dans le piège, <em>sans la garde ?</em></h3>
   </div>
   {{CHROME}}
-  <aside class="notes">LE retrait en direct : complet puis sans-hook-garde-commandes sur panier-remise. Les commandes dangereuses sont comptées dans le flux, même quand le hook est retiré. Dire aussi : cette garde est contournable, le conteneur est la vraie barrière.</aside>
+  <aside class="notes">Ce qui tourne ce soir : la garde appelée à la main, elle bloque et écrit une ligne dans le journal d'incidents. Prédiction : utile à toutes les tailles, car aucun modèle ne garantit qu'il ne lancera jamais rm -r. Sa valeur se lira dans les commandes dangereuses passées, comptées même quand le hook est retiré, pas dans le taux de réussite. Démo à venir : complet puis sans-hook-garde-commandes sur panier-remise, contre un vrai modèle ; plan B vidéo. Dire aussi : cette garde est contournable, le conteneur est la vraie barrière.</aside>
 </section>
 
-<!-- 14. Pièce 3 · cas limite · 18:00 -->
+<!-- 15. Pièce 3 · cas limite · 18:00 -->
 <section class="slide">
   <div class="pad" style="top:200px">
-    <div class="k reveal">Pièce 3 · le cas limite · en vidéo</div>
+    <div class="k reveal">Pièce 3 · le cas limite</div>
     <h2 class="reveal" style="margin-top:30px">Tests après chaque édition</h2>
     <p class="reveal" style="margin-top:50px">Il ne bloque rien : il <em>compense</em> un oubli. C'est le hook Stop qui gouverne.</p>
     <p class="muted reveal">Un <em>sensor</em>, au sens de Birgitta Böckeler.</p>
     <p class="muted reveal" style="font-size:20px;margin-top:30px">Birgitta Böckeler, « Harness engineering for coding agent users », martinfowler.com, 02/04/2026</p>
   </div>
   {{CHROME}}
-  <aside class="notes">Vidéo enregistrée. Je l'avais d'abord classé « gouverne » ; reclassé « compense » avant toute mesure, parce que son hypothèse décrit une limite du modèle. La mesure tranchera : si le Δ tombe à zéro sur le grand modèle, il compensait bien.</aside>
+  <aside class="notes">Démo à venir, en vidéo. Je l'avais d'abord classé « gouverne » ; reclassé « compense » avant toute mesure, parce que son hypothèse décrit une limite du modèle. La mesure tranchera : si le Δ tombe à zéro sur le grand modèle, il compensait bien.</aside>
 </section>
 
-<!-- 15. Le témoin · 20:00 -->
-<section class="slide">
-  <div class="pad" style="top:240px">
-    <div class="k reveal">Le témoin</div>
-    <h2 class="reveal" style="margin-top:30px">Une pièce sans effet<br><em>mesure le bruit.</em></h2>
-    <p class="muted reveal" style="margin-top:40px">Seuil annoncé : 2 × l'écart-type entre essais. Si le témoin le dépasse, on ne conclut pas.</p>
-  </div>
-  {{CHROME}}
-  <aside class="notes">Le témoin est un fichier que rien ne charge, ni compense ni gouverne. Ce ne sont pas les évals : elles gouvernent vraiment, mais agissent avant la publication du plugin, et ce banc ne peut pas mesurer leur valeur. Un Δ nul sur elles ne voudrait pas dire que gouverner ne sert à rien.</aside>
-</section>
-
-<!-- 16. Section résultats · 21:00 -->
+<!-- 16. Section résultats · 20:00 -->
 <section class="slide">
   {{RULER}}
-  <div class="pad" style="top:320px"><div class="k reveal">Partie 3</div><h1 class="reveal" style="margin-top:30px">Les <em>résultats</em></h1></div>
+  <div class="pad" style="top:320px"><div class="k reveal">Partie 3 · avant les résultats</div><h1 class="reveal" style="margin-top:30px">Le <em>pari</em></h1>
+    <p class="muted reveal" style="margin-top:40px">Prédictions écrites avant. Mesures publiées en janvier 2027.</p></div>
   {{CHROME}}
+  <aside class="notes">À la conférence, cette partie montre les mesures. Ici, je montre ce que je parie et comment je lirai les chiffres, pour qu'on ne puisse pas m'accuser de les lire après coup.</aside>
 </section>
 
-<!-- 17. Tableau · 21:30 -->
+<!-- 17. Les prédictions · 21:00 -->
 <section class="slide">
   <div class="pad">
-    <div class="k reveal">Pièce retirée → Δ réussite</div>
+    <div class="k reveal">Mes prédictions · écrites avant toute mesure</div>
     <table class="m reveal" style="margin-top:40px">
       <tr><th>Pièce retirée</th><th>Étiquette</th><th>Petit</th><th>Moyen</th><th>Grand</th></tr>
-      <tr><td>skill corriger-kata</td><td>compense</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
-      <tr><td>skill planifier</td><td>compense</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
-      <tr><td>garde des commandes</td><td>gouverne</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
-      <tr><td>tests après modification</td><td>compense</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
-      <tr><td>témoin (sans effet)</td><td>témoin</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>skill corriger-kata</td><td>compense</td><td class="n">+</td><td class="n">0</td><td class="n">0</td></tr>
+      <tr><td>skill planifier</td><td>compense</td><td class="n">+</td><td class="n">0</td><td class="n">0</td></tr>
+      <tr><td>sous-agent enquêteur</td><td>compense</td><td class="n">?</td><td class="n">0</td><td class="n">0</td></tr>
+      <tr><td>garde des commandes</td><td>gouverne</td><td class="n">+</td><td class="n">+</td><td class="n">+</td></tr>
+      <tr><td>vérification avant la fin</td><td>gouverne</td><td class="n">+</td><td class="n">+</td><td class="n">+</td></tr>
     </table>
-    <div class="todo reveal" style="margin-top:36px">à mesurer · publication avant la conférence</div>
+    <p class="muted reveal" style="font-size:22px;margin-top:30px">« + » la pièce aide · « 0 » elle ne change rien · « ? » je ne sais pas · hypothèses, pas des résultats</p>
   </div>
   {{CHROME}}
-  <aside class="notes">Tableau complet des 10 pièces dans le dépôt : python3 teardown/score.py resultats/date.</aside>
+  <aside class="notes">Le pari en une phrase : sur les gros modèles, ce qui compense ne sert plus, ce qui gouverne garde sa valeur. Les 11 prédictions sont dans teardown/pieces.json, versionnées avant les mesures. Si une prédiction est fausse, elle reste dans le fichier et je la montre.</aside>
 </section>
 
-<!-- 18. Sécurité et coût · 24:00 -->
+<!-- 18. Comment je lirai les résultats · 24:00 -->
 <section class="slide">
   <div class="pad">
-    <div class="k reveal">Ce que le taux de réussite ne montre pas</div>
-    <div class="cols reveal" style="margin-top:60px">
-      <div class="panel"><h3>Commandes dangereuses passées</h3><p class="muted">sans la garde, par taille</p><div class="todo">à mesurer</div></div>
-      <div class="panel"><h3>Tokens</h3><p class="muted">ce que coûte chaque pièce</p><div class="todo">à mesurer</div></div>
-    </div>
+    <div class="k reveal">Comment je lirai les chiffres · règles fixées avant</div>
+    <ul class="steps reveal">
+      <li data-n="01">Un <em>témoin</em> sans effet mesure le bruit du banc.</li>
+      <li data-n="02">Un Δ sous 2 × l'écart-type entre essais : <em>bruit</em>, on ne conclut pas.</li>
+      <li data-n="03">La sécurité se lit dans les <em>commandes dangereuses passées</em>, pas dans la réussite.</li>
+    </ul>
+    <p class="muted reveal" style="margin-top:40px">Ce que vous verrez : Δ réussite, Δ tokens, commandes passées, par pièce et par taille. Publié dans le dépôt en janvier 2027.</p>
   </div>
   {{CHROME}}
-  <aside class="notes">Si une prédiction est fausse, on la montre ici, telle quelle.</aside>
+  <aside class="notes">Le témoin est un fichier que rien ne charge : si le retirer change le score au-delà du seuil, le banc est trop bruité et j'ajoute des essais. Les évals ne sont pas le témoin : elles gouvernent vraiment, mais avant la publication du plugin, et ce banc ne peut pas mesurer leur valeur. Un essai écarté (planté, hors délai, qui fouille les réponses) est compté à part. En 40 min : ajouter ici les limites du banc (katas courts en Python, une seule famille de modèles, une pièce retirée à la fois).</aside>
 </section>
 
 <!-- 19. La grille à emporter · 27:00 -->
@@ -243,7 +255,7 @@ Habitude de l'équipe avant de lancer les tests :
     <pre class="code reveal" style="margin-top:50px">git clone https://github.com/mekkiamiri/harness-teardown</pre>
   </div>
   {{CHROME}}
-  <aside class="notes">Sur la page, chacun peut classer les 10 pièces et comparer avec la prédiction.</aside>
+  <aside class="notes">Trois questions, pour n'importe quel harnais. Sur la page, chacun peut classer les 10 pièces et comparer avec ma prédiction. Le banc se relance à chaque nouveau modèle : c'est ça, l'outil à emporter.</aside>
 </section>
 
 <!-- 20. Fin · 28:00 -->
