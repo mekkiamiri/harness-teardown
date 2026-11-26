@@ -50,6 +50,13 @@ import taches as taches_mod  # noqa: E402
 import variants  # noqa: E402
 
 RACINE = Path(__file__).resolve().parent.parent
+
+
+def anonymiser(texte: str) -> str:
+    """Retire des résultats publiés les chemins locaux et les noms d'hôte réseau des messages d'erreur."""
+    texte = re.sub(r"(ENOTFOUND|ECONNREFUSED|ETIMEDOUT)\s+[\w.-]+", r"\1 <proxy d'entreprise>", texte)
+    texte = re.sub(r"/(?:private/)?var/folders/[^\s\"']+", "<fichier temporaire>", texte)
+    return re.sub(r"/Users/[^/\s\"']+", "~", texte)
 CONSIGNE = (
     "Les tests de ce kata échouent. Corrige le bug dans le code source pour que le comportement "
     "corresponde à ENONCE.md. Quand tu as fini, résume la cause et le correctif en deux lignes."
@@ -401,7 +408,7 @@ def executer_une(variante: Path, nom_variante: str, modele: str, tache: dict, es
     dossier = sortie / modele / nom_variante
     dossier.mkdir(parents=True, exist_ok=True)
     base = dossier / f"{tache['id']}-{essai}"
-    base.with_suffix(".json").write_text(json.dumps(enreg, ensure_ascii=False, indent=2), encoding="utf-8")
+    base.with_suffix(".json").write_text(anonymiser(json.dumps(enreg, ensure_ascii=False, indent=2)), encoding="utf-8")
     base.with_suffix(".stream.jsonl").write_text(stdout, encoding="utf-8")
     return enreg
 
@@ -419,6 +426,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="dossier (défaut) : dossier jetable + permissions strictes ; conteneur : --enveloppe")
     parser.add_argument("--enveloppe", default="",
                         help="commande de conteneur ; {espace}, {plugin} et {journal} sont remplacés")
+    parser.add_argument("--reprendre", action="store_true", help="avec --sortie : ne rejouer que les essais absents ou marqués à relancer")
     parser.add_argument("--executer", action="store_true", help="lance vraiment les exécutions (appels de modèle)")
     args = parser.parse_args(argv)
 
@@ -459,6 +467,10 @@ def main(argv: list[str] | None = None) -> int:
         ecartes = a_relancer = 0
         cout_total = 0.0
         for i, (m, v, t, e) in enumerate(plan, 1):
+            if args.reprendre:
+                deja = Path(sortie) / m / v / f"{t['id']}-{e}.json"
+                if deja.exists() and not json.loads(deja.read_text(encoding="utf-8")).get("a_relancer"):
+                    continue
             enreg = executer_une(toutes[v], v, m, t, e, sortie, args.budget_usd, classer, args.enveloppe,
                                  args.isolation)
             etat = ("réussi" if enreg["reussi"] else "échec") if enreg["valide"] else f"ÉCARTÉ ({enreg['motif_rejet']})"
